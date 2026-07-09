@@ -337,9 +337,154 @@ const BOOKS_DATA = [
    insight:'与《1984》齐名的反乌托邦经典。一个没有痛苦但也没有爱的世界，赫胥黎警告我们：娱乐至死比压迫更可怕。'},
 ];
 
-// ─── Generate Premium Book Cover ─────────────────
-function generateBookCover(book, size=512){
-  const w=size, h=Math.round(size*1.4);
+// ─── Book Cover Texture Generator ─────────────────
+const canvas=document.getElementById('three-canvas');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.15;
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color('#030308');
+scene.fog=new THREE.FogExp2('#030308',0.00015);
+
+const camera=new THREE.PerspectiveCamera(58,window.innerWidth/window.innerHeight,0.4,100);
+camera.position.set(0,0.8,14);
+camera.lookAt(0,0,0);
+
+// ─── OrbitControls ──────────────────────────────
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=0.07;
+controls.enableZoom=true;controls.zoomSpeed=1.1;
+controls.minDistance=2.5;controls.maxDistance=35;
+controls.enablePan=false;controls.target.set(0,0,0);controls.update();
+
+// ─── Bloom (ethereal glow, controlled exposure) ─
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+const bloomPass=new UnrealBloomPass(new THREE.Vector2(window.innerWidth,window.innerHeight),0.85,0.5,0.15);
+composer.addPass(bloomPass);
+
+// ─── Cinematic Lighting ────────────────────────
+scene.add(new THREE.AmbientLight(0x1c1640,1.5));
+scene.add(new THREE.HemisphereLight(0x5040a0,0x08081a,0.75));
+
+const keyLight=new THREE.DirectionalLight(0xf0e8ff,2.5);
+keyLight.position.set(4,6,8);scene.add(keyLight);
+const fillLight=new THREE.DirectionalLight(0x6858b0,1.2);
+fillLight.position.set(-2,1,3);scene.add(fillLight);
+
+const poiLights=[
+  {c:0xa855f7,p:[0,3.5,5],in:18,dist:22},
+  {c:0x22d3ee,p:[5,-1,4],in:15,dist:20},
+  {c:0xe879f9,p:[-4,1,5],in:14,dist:20},
+  {c:0x34d399,p:[3,-3,6],in:12,dist:18},
+  {c:0x38bdf8,p:[-3,-2,2],in:14,dist:18},
+  {c:0xfacc15,p:[0,5,-3],in:10,dist:16},
+  {c:0xa78bfa,p:[6,1,-5],in:12,dist:22},
+];
+poiLights.forEach(pl=>{
+  const l=new THREE.PointLight(pl.c,pl.in,pl.dist,1.2);
+  l.position.set(...pl.p);scene.add(l);
+});
+
+// ─── Dramatic Colorful Nebulae ──────────────────
+function createNebula(x,y,z,size,colorInputs,opacity){
+  const nc=document.createElement('canvas');nc.width=512;nc.height=512;
+  const nctx=nc.getContext('2d');
+  // Multi-layered overlapping color clouds
+  const colors=Array.isArray(colorInputs)?colorInputs:[colorInputs];
+  colors.forEach((color,i)=>{
+    const cx=256+(Math.random()-0.5)*200,cy=256+(Math.random()-0.5)*200;
+    const r=120+Math.random()*180;
+    const g=nctx.createRadialGradient(cx,cy,0,cx,cy,r);
+    g.addColorStop(0,color);
+    g.addColorStop(0.25,color.replace(/[\d.]+\)$/,'0.55)'));
+    g.addColorStop(0.55,color.replace(/[\d.]+\)$/,'0.12)'));
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    nctx.fillStyle=g;nctx.fillRect(0,0,512,512);
+  });
+  // Bright star-like particles within nebula
+  for(let i=0;i<90;i++){
+    const rx=256+(Math.random()-0.5)*420,ry=256+(Math.random()-0.5)*420;
+    const rr=0.8+Math.random()*4.5;
+    nctx.fillStyle='rgba(255,255,255,'+(0.03+Math.random()*0.14)+')';
+    nctx.beginPath();nctx.arc(rx,ry,rr,0,Math.PI*2);nctx.fill();
+  }
+  // Wispy filament lines
+  nctx.globalAlpha=0.15;
+  for(let i=0;i<12;i++){
+    nctx.strokeStyle=colors[i%colors.length].replace(/[\d.]+\)$/,'0.4)');
+    nctx.lineWidth=2+Math.random()*8;
+    nctx.beginPath();
+    const sx=256+(Math.random()-0.5)*350,sy=256+(Math.random()-0.5)*350;
+    nctx.moveTo(sx,sy);
+    for(let j=0;j<4;j++){
+      nctx.lineTo(sx+(Math.random()-0.5)*250,sy+(Math.random()-0.5)*250);
+    }
+    nctx.stroke();
+  }
+  nctx.globalAlpha=1;
+  const tex=new THREE.CanvasTexture(nc);
+  const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,blending:THREE.AdditiveBlending,opacity,depthWrite:false}));
+  spr.position.set(x,y,z);spr.scale.set(size,size,1);return spr;
+}
+// Rich colorful nebula field — uniformly spread around the scene sphere
+const nebulaDefs=[
+  {colors:['rgba(34,211,238,1)','rgba(56,189,248,1)','rgba(167,139,250,1)'],size:22,opacity:0.26},
+  {colors:['rgba(168,85,247,1)','rgba(232,121,249,1)','rgba(192,132,252,1)'],size:24,opacity:0.28},
+  {colors:['rgba(52,211,153,1)','rgba(45,212,191,1)','rgba(34,211,238,1)'],size:20,opacity:0.24},
+  {colors:['rgba(232,121,249,1)','rgba(244,114,182,1)','rgba(168,85,247,1)'],size:23,opacity:0.26},
+  {colors:['rgba(56,189,248,1)','rgba(125,211,252,1)','rgba(34,211,238,1)'],size:25,opacity:0.22},
+  {colors:['rgba(124,58,237,1)','rgba(168,85,247,1)','rgba(99,102,241,1)'],size:21,opacity:0.27},
+  {colors:['rgba(250,204,21,1)','rgba(251,191,36,1)','rgba(252,165,34,1)'],size:20,opacity:0.2},
+  {colors:['rgba(244,114,182,1)','rgba(232,121,249,1)','rgba(251,113,133,1)'],size:18,opacity:0.24},
+  {colors:['rgba(45,212,191,1)','rgba(52,211,153,1)','rgba(34,211,238,1)'],size:22,opacity:0.25},
+  {colors:['rgba(167,139,250,1)','rgba(196,167,255,1)','rgba(168,85,247,1)'],size:19,opacity:0.24},
+  {colors:['rgba(251,113,133,1)','rgba(244,114,182,1)','rgba(232,121,249,1)'],size:21,opacity:0.22},
+  {colors:['rgba(56,189,248,1)','rgba(34,211,238,1)','rgba(45,212,191,1)'],size:24,opacity:0.2},
+];
+// Distribute uniformly on sphere surface using Fibonacci sphere + randomized radius
+const nebRadius=25;
+nebulaDefs.forEach((def,i)=>{
+  const goldRatio=(1+Math.sqrt(5))/2;
+  const idx=i+0.5;
+  const phi=Math.acos(1-2*idx/nebulaDefs.length);        // polar angle [0,π]
+  const theta=2*Math.PI*idx/goldRatio;                     // azimuth, golden-ratio spiral
+  const r=nebRadius+Math.random()*8;                       // distance randomization
+  const x=r*Math.sin(phi)*Math.cos(theta);
+  const y=r*Math.sin(phi)*Math.sin(theta);
+  const z=r*Math.cos(phi);
+  scene.add(createNebula(x,y,z,def.size,def.colors,def.opacity));
+});
+
+// ─── Starfield ─────────────────────────────────
+const starsGeo=new THREE.BufferGeometry();
+const STARS=4000;
+const starsPos=new Float32Array(STARS*3);
+const starsCol=new Float32Array(STARS*3);
+for(let i=0;i<STARS;i++){
+  const r=14+Math.random()*40,th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);
+  starsPos[i*3]=r*Math.sin(ph)*Math.cos(th);starsPos[i*3+1]=r*Math.sin(ph)*Math.sin(th);starsPos[i*3+2]=r*Math.cos(ph);
+  const cl=new THREE.Color().setHSL(0.55+Math.random()*0.3,0.35+Math.random()*0.55,0.6+Math.random()*0.4);
+  starsCol[i*3]=cl.r;starsCol[i*3+1]=cl.g;starsCol[i*3+2]=cl.b;
+}
+starsGeo.setAttribute('position',new THREE.BufferAttribute(starsPos,3));
+starsGeo.setAttribute('color',new THREE.BufferAttribute(starsCol,3));
+const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({size:0.09,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:1.0}));
+scene.add(stars);
+
+// ─── Book Meshes (Solid 3D with Edge Glow) ─────
+const bookMeshes=[];
+const glowEdges=[];
+const bookGroup=new THREE.Group();scene.add(bookGroup);
+
+const BOOK_W=1.8*(1/1.4), BOOK_H=1.8, BOOK_D=0.22;
+
+function generateBookCoverTex(book, size=512){
+  const aspect=1/1.4, w=size, h=Math.round(size*1.4);
   const c=document.createElement('canvas');c.width=w;c.height=h;
   const ctx=c.getContext('2d');
 
@@ -401,128 +546,38 @@ function generateBookCover(book, size=512){
   gloss.addColorStop(0,'rgba(255,255,255,0.08)');gloss.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=gloss;ctx.fillRect(0,0,w,h);
 
+  return c;
+}
+
+function generateBookCover(book, size=512){
+  // Keep original for backward compat with some uses
+  const c=generateBookCoverTex(book,size);
   const tex=new THREE.CanvasTexture(c);
   tex.colorSpace=THREE.SRGBColorSpace;tex.minFilter=THREE.LinearMipmapLinearFilter;tex.magFilter=THREE.LinearFilter;
   tex.generateMipmaps=true;return tex;
 }
 
-// ─── Edge Glow Frame Texture ────────────────────
-function createGlowFrame(book){
-  const w=256,h=Math.round(256*1.4);
-  const c=document.createElement('canvas');c.width=w;c.height=h;
-  const ctx=c.getContext('2d');
-  ctx.clearRect(0,0,w,h);
-  const m=w*0.04;
-  ctx.strokeStyle=book.neon;ctx.lineWidth=w*0.04;
-  ctx.shadowColor=book.neon;ctx.shadowBlur=w*0.12;
-  ctx.strokeRect(m,m,w-m*2,h-m*2);
-  ctx.shadowBlur=0;
-  ctx.strokeStyle=book.neon;ctx.lineWidth=w*0.015;
-  ctx.globalAlpha=0.5;ctx.strokeRect(m,m,w-m*2,h-m*2);ctx.globalAlpha=1;
-  const tex=new THREE.CanvasTexture(c);
-  tex.colorSpace=THREE.SRGBColorSpace;tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;
-  return tex;
-}
+// Wrap texture for box mesh — unified solid color material
+function createBookBoxMaterial(book, size=512){
+  const frontCanvas=generateBookCoverTex(book,size);
+  const frontTex=new THREE.CanvasTexture(frontCanvas);
+  frontTex.colorSpace=THREE.SRGBColorSpace;
 
-// ─── Scene Setup ────────────────────────────────
-const canvas=document.getElementById('three-canvas');
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-renderer.setSize(window.innerWidth,window.innerHeight);
-renderer.outputColorSpace=THREE.SRGBColorSpace;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.15;
-
-const scene=new THREE.Scene();
-scene.background=new THREE.Color('#030308');
-scene.fog=new THREE.FogExp2('#030308',0.00015);
-
-const camera=new THREE.PerspectiveCamera(58,window.innerWidth/window.innerHeight,0.4,100);
-camera.position.set(0,0.8,14);
-camera.lookAt(0,0,0);
-
-// ─── OrbitControls ──────────────────────────────
-const controls=new OrbitControls(camera,renderer.domElement);
-controls.enableDamping=true;controls.dampingFactor=0.07;
-controls.enableZoom=true;controls.zoomSpeed=1.1;
-controls.minDistance=2.5;controls.maxDistance=35;
-controls.enablePan=false;controls.target.set(0,0,0);controls.update();
-
-// ─── Bloom (ethereal glow, controlled exposure) ─
-const composer=new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene,camera));
-const bloomPass=new UnrealBloomPass(new THREE.Vector2(window.innerWidth,window.innerHeight),0.75,0.55,0.3);
-composer.addPass(bloomPass);
-
-// ─── Cinematic Lighting ────────────────────────
-scene.add(new THREE.AmbientLight(0x1c1640,1.5));
-scene.add(new THREE.HemisphereLight(0x5040a0,0x08081a,0.75));
-
-const keyLight=new THREE.DirectionalLight(0xf0e8ff,2.5);
-keyLight.position.set(4,6,8);scene.add(keyLight);
-const fillLight=new THREE.DirectionalLight(0x6858b0,1.2);
-fillLight.position.set(-2,1,3);scene.add(fillLight);
-
-const poiLights=[
-  {c:0xa855f7,p:[0,3.5,5],in:18,dist:22},
-  {c:0x22d3ee,p:[5,-1,4],in:15,dist:20},
-  {c:0xe879f9,p:[-4,1,5],in:14,dist:20},
-  {c:0x34d399,p:[3,-3,6],in:12,dist:18},
-  {c:0x38bdf8,p:[-3,-2,2],in:14,dist:18},
-  {c:0xfacc15,p:[0,5,-3],in:10,dist:16},
-  {c:0xa78bfa,p:[6,1,-5],in:12,dist:22},
-];
-poiLights.forEach(pl=>{
-  const l=new THREE.PointLight(pl.c,pl.in,pl.dist,1.2);
-  l.position.set(...pl.p);scene.add(l);
-});
-
-// ─── Dramatic Nebula ───────────────────────────
-function createNebula(x,y,z,size,color,opacity){
-  const nc=document.createElement('canvas');nc.width=512;nc.height=512;
-  const nctx=nc.getContext('2d');
-  const g=nctx.createRadialGradient(256,256,0,256,256,256);
-  g.addColorStop(0,color);g.addColorStop(0.1,color);
-  g.addColorStop(0.4,color.replace('1)','0.3)').replace('1','0.3'));
-  g.addColorStop(0.75,'rgba(8,4,20,0.05)');g.addColorStop(1,'rgba(0,0,0,0)');
-  nctx.fillStyle=g;nctx.fillRect(0,0,512,512);
-  for(let i=0;i<55;i++){
-    const rx=256+(Math.random()-0.5)*400,ry=256+(Math.random()-0.5)*400,rr=3+Math.random()*30;
-    nctx.fillStyle='rgba(255,255,255,'+(0.01+Math.random()*0.06)+')';
-    nctx.beginPath();nctx.arc(rx,ry,rr,0,Math.PI*2);nctx.fill();
+  // Create edge-page texture for all 4 side edges — dark with page lines
+  const edgeCanvas=document.createElement('canvas');edgeCanvas.width=size;edgeCanvas.height=Math.round(size*0.22);
+  const ectx=edgeCanvas.getContext('2d');
+  // Base: deep dark tone from book
+  ectx.fillStyle='#050510';ectx.fillRect(0,0,edgeCanvas.width,edgeCanvas.height);
+  // Tiny page-line texture on edge
+  for(let i=0;i<8;i++){
+    ectx.fillStyle='rgba(255,255,255,'+(0.03+Math.random()*0.04)+')';
+    ectx.fillRect(0,i*edgeCanvas.height*0.12,edgeCanvas.width,1);
   }
-  const tex=new THREE.CanvasTexture(nc);
-  const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,blending:THREE.AdditiveBlending,opacity,depthWrite:false}));
-  spr.position.set(x,y,z);spr.scale.set(size,size,1);return spr;
-}
-// No central blob — only scattered peripheral nebula dust
-scene.add(createNebula(5,4,-14,20,'rgba(34,211,238,1)',0.2));
-scene.add(createNebula(-5,-3,-13,18,'rgba(168,85,247,1)',0.22));
-scene.add(createNebula(6,-2,-11,16,'rgba(52,211,153,1)',0.18));
-scene.add(createNebula(-6,3,-12,19,'rgba(232,121,249,1)',0.2));
-scene.add(createNebula(0,6,-15,22,'rgba(56,189,248,1)',0.18));
-scene.add(createNebula(0,-5,-10,17,'rgba(124,58,237,1)',0.22));
+  const edgeTex=new THREE.CanvasTexture(edgeCanvas);
+  edgeTex.colorSpace=THREE.SRGBColorSpace;edgeTex.wrapS=THREE.RepeatWrapping;
 
-// ─── Starfield ─────────────────────────────────
-const starsGeo=new THREE.BufferGeometry();
-const STARS=4000;
-const starsPos=new Float32Array(STARS*3);
-const starsCol=new Float32Array(STARS*3);
-for(let i=0;i<STARS;i++){
-  const r=14+Math.random()*40,th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);
-  starsPos[i*3]=r*Math.sin(ph)*Math.cos(th);starsPos[i*3+1]=r*Math.sin(ph)*Math.sin(th);starsPos[i*3+2]=r*Math.cos(ph);
-  const cl=new THREE.Color().setHSL(0.55+Math.random()*0.3,0.35+Math.random()*0.55,0.6+Math.random()*0.4);
-  starsCol[i*3]=cl.r;starsCol[i*3+1]=cl.g;starsCol[i*3+2]=cl.b;
+  return {frontTex, edgeTex};
 }
-starsGeo.setAttribute('position',new THREE.BufferAttribute(starsPos,3));
-starsGeo.setAttribute('color',new THREE.BufferAttribute(starsCol,3));
-const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({size:0.09,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:1.0}));
-scene.add(stars);
-
-// ─── Book Meshes (emissive neon rim) ───────────
-const bookMeshes=[];
-const glowFrames=[];
-const bookGroup=new THREE.Group();scene.add(bookGroup);
 
 const nodeTexCanvas=document.createElement('canvas');nodeTexCanvas.width=32;nodeTexCanvas.height=32;
 const dnctx=nodeTexCanvas.getContext('2d');
@@ -535,30 +590,55 @@ const nodeGeo=new THREE.BufferGeometry();
 const nodePosArr=new Float32Array(BOOKS_DATA.length*3);
 
 BOOKS_DATA.forEach((book,i)=>{
-  const texture=generateBookCover(book);
-  const aspect=1/1.4;
-  const geo=new THREE.PlaneGeometry(1.8*aspect,1.8);
-  // Neon rim: higher emissive for bloom-induced glow
-  const mat=new THREE.MeshStandardMaterial({
-    map:texture,roughness:0.6,metalness:0.06,side:THREE.DoubleSide,
-    // No surface glow — only edge neon frame behind
+  const {frontTex, edgeTex}=createBookBoxMaterial(book);
+
+  // Single unified material for the whole box — solid, filled, no hollow
+  const solidMat=new THREE.MeshStandardMaterial({
+    map:frontTex,
+    roughness:0.55,
+    metalness:0.06,
+    side:THREE.FrontSide,  // front faces only, box is solid
   });
-  const mesh=new THREE.Mesh(geo,mat);
+
+  const geo=new THREE.BoxGeometry(BOOK_W, BOOK_H*0.92, BOOK_D, 1,1,1);
+  const mesh=new THREE.Mesh(geo, solidMat);
   const phi=Math.acos(2*Math.random()-1),theta=Math.random()*Math.PI*2,r=3.5+Math.random()*9;
   mesh.position.set(r*Math.sin(phi)*Math.cos(theta),r*Math.sin(phi)*Math.sin(theta),r*Math.cos(phi));
   mesh.rotation.set((Math.random()-0.5)*0.6,(Math.random()-0.5)*0.9,(Math.random()-0.5)*0.4);
   mesh.userData={book,id:book.id,basePos:mesh.position.clone(),floatSpeed:0.22+Math.random()*0.6,floatAmp:0.05+Math.random()*0.2,rotSpeed:0.06+Math.random()*0.3};
   bookGroup.add(mesh);bookMeshes.push(mesh);
 
-  // Glow edge frame behind book
-  const glowTex=createGlowFrame(book);
-  const glowGeo2=new THREE.PlaneGeometry(1.8*aspect*1.14,1.8*1.14);
-  const glowMat=new THREE.MeshBasicMaterial({map:glowTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,side:THREE.DoubleSide});
-  const glowFrame=new THREE.Mesh(glowGeo2,glowMat);
-  glowFrame.position.copy(mesh.position);glowFrame.position.z-=0.02;
-  glowFrame.rotation.copy(mesh.rotation);glowFrame.renderOrder=1;glowFrame.material.depthTest=false;
-  glowFrame.userData={parentBook:mesh};
-  bookGroup.add(glowFrame);glowFrames.push(glowFrame);
+  // Edge-only glow — only the 12 outer edges (threshold 0, no subdivision)
+  const edgeGeo=new THREE.EdgesGeometry(geo, 1);
+  const edgeMat=new THREE.LineBasicMaterial({
+    color:new THREE.Color(book.neon),
+    blending:THREE.AdditiveBlending,
+    transparent:true,opacity:0.7,
+    depthWrite:false,
+    linewidth:1
+  });
+  const edgeLine=new THREE.LineSegments(edgeGeo, edgeMat);
+  edgeLine.position.copy(mesh.position);
+  edgeLine.rotation.copy(mesh.rotation);
+  edgeLine.renderOrder=1;
+  edgeLine.material.depthTest=false;
+  edgeLine.userData={parentBook:mesh};
+  bookGroup.add(edgeLine);glowEdges.push(edgeLine);
+
+  // Outer glow halo (BackSide additive shell for bloom aura)
+  const haloGeo=new THREE.BoxGeometry(BOOK_W*1.25, BOOK_H*0.92*1.25, BOOK_D*2.2, 1,1,1);
+  const haloMat=new THREE.MeshBasicMaterial({
+    color:new THREE.Color(book.neon),
+    blending:THREE.AdditiveBlending,
+    transparent:true,opacity:0.08,
+    depthWrite:false,side:THREE.BackSide
+  });
+  const haloMesh=new THREE.Mesh(haloGeo, haloMat);
+  haloMesh.position.copy(mesh.position);
+  haloMesh.rotation.copy(mesh.rotation);
+  haloMesh.renderOrder=0;
+  haloMesh.userData={parentBook:mesh};
+  bookGroup.add(haloMesh);glowEdges.push(haloMesh);
   nodePosArr[i*3]=mesh.position.x;nodePosArr[i*3+1]=mesh.position.y;nodePosArr[i*3+2]=mesh.position.z;
 });
 nodeGeo.setAttribute('position',new THREE.BufferAttribute(nodePosArr,3));
@@ -667,9 +747,12 @@ document.getElementById('search-input').addEventListener('input',e=>{
   const q=e.target.value.toLowerCase();
   bookMeshes.forEach(m=>{
     const b=m.userData.book;
-    if(!q){m.visible=true;m.material.emissive=new THREE.Color(0x000000);m.material.emissiveIntensity=0;return}
-    if(b.title.includes(q)||b.author.includes(q)||b.genre.includes(q)||b.insight.includes(q)){m.visible=true;m.material.emissive=new THREE.Color('#ffffff');m.material.emissiveIntensity=1.0}
-    else{m.visible=false}
+    if(!q){m.visible=true;return}
+    if(b.title.includes(q)||b.author.includes(q)||b.genre.includes(q)||b.insight.includes(q)){
+      m.visible=true;
+    }else{
+      m.visible=false;
+    }
   });
 });
 
@@ -697,10 +780,13 @@ function animate(){
     m.position.z=ud.basePos.z+Math.cos(t*ud.floatSpeed*0.45)*ud.floatAmp*0.85;
     m.rotation.y+=dt*ud.rotSpeed*0.22;
   });
-  glowFrames.forEach(gf=>{
-    const parent=gf.userData.parentBook;
-    gf.position.copy(parent.position);gf.position.z-=0.02;
-    gf.rotation.copy(parent.rotation);gf.visible=parent.visible;
+  glowEdges.forEach((ge,i)=>{
+    const parent=ge.userData.parentBook;
+    ge.position.copy(parent.position);
+    ge.rotation.copy(parent.rotation);
+    ge.visible=parent.visible;
+    // Pulse edge glow opacity with time
+    ge.material.opacity=0.4+0.35*Math.sin(t*1.5+i*0.7);
   });
 
   if(t-lastRebuild>2.5){buildConnections();lastRebuild=t}
