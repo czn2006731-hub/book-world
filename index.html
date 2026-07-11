@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书籍人生模拟器</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <!-- 登录注册界面 -->
+    <div id="login-screen" class="screen active">
+        <canvas id="stars-canvas-login"></canvas>
+        <div class="login-container">
+            <div class="login-box">
+                <h1 class="login-title">书籍人生模拟器</h1>
+                <p class="login-subtitle">穿越书籍，体验不同人生</p>
+                
+                <!-- 登录表单 -->
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <input type="text" id="login-username" placeholder="用户名" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="login-password" placeholder="密码" required>
+                    </div>
+                    <button type="submit" class="btn-primary">登录</button>
+                    <p class="switch-text">还没有账号？<a href="#" id="show-register">立即注册</a></p>
+                </form>
+                
+                <!-- 注册表单 -->
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <input type="text" id="register-username" placeholder="用户名" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="register-password" placeholder="密码" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="register-confirm" placeholder="确认密码" required>
+                    </div>
+                    <button type="submit" class="btn-primary">注册</button>
+                    <p class="switch-text">已有账号？<a href="#" id="show-login">立即登录</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主界面 - 宇宙星空 -->
+    <div id="main-screen" class="screen">
+        <canvas id="three-canvas"></canvas>
+        <div class="main-container">
+            <h1 class="main-title">选择你的宇宙</h1>
+            <p class="main-subtitle">点击星云，穿越到不同的书籍世界 · 拖拽旋转 · 滚轮缩放</p>
+        </div>
+        <div class="nebula-overlays">
+            <div class="nebula-info" id="info-scifi">
+                <h3>科幻星云</h3>
+                <div class="book-list">
+                    <p>代表书籍：</p>
+                    <ul>
+                        <li>《三体》- 刘慈欣</li>
+                        <li>《流浪地球》- 刘慈欣</li>
+                        <li>《基地》- 阿西莫夫</li>
+                    </ul>
+                </div>
+                <p class="nebula-desc">探索宇宙的奥秘，见证文明的兴衰</p>
+            </div>
+            <div class="nebula-info" id="info-xianxia">
+                <h3>修仙星云</h3>
+                <div class="book-list">
+                    <p>代表书籍：</p>
+                    <ul>
+                        <li>《凡人修仙传》- 忘语</li>
+                        <li>《遮天》- 辰东</li>
+                        <li>《完美世界》- 辰东</li>
+                    </ul>
+                </div>
+                <p class="nebula-desc">踏上修仙之路，追求长生大道</p>
+            </div>
+            <div class="nebula-info" id="info-romance">
+                <h3>言情星云</h3>
+                <div class="book-list">
+                    <p>代表书籍：</p>
+                    <ul>
+                        <li>《微微一笑很倾城》- 顾漫</li>
+                        <li>《何以笙箫默》- 顾漫</li>
+                        <li>《致青春》- 辛夷坞</li>
+                    </ul>
+                </div>
+                <p class="nebula-desc">体验心动瞬间，感受浪漫爱情</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 星座界面 - 书籍选择 -->
+    <div id="book-screen" class="screen">
+        <canvas id="constellation-canvas"></canvas>
+        
+        <div id="constellation-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none;">
+            <!-- 迪士尼风格标题 -->
+            <div class="disney-title" id="disney-title">
+                <div class="disney-text">BookVerse</div>
+            </div>
+
+            <!-- 顶部导航 -->
+            <header id="constellation-nav">
+                <button class="back-btn-constellation" id="back-btn">← 返回星云</button>
+                <div class="constellation-title" id="constellation-title">科幻星云</div>
+                <div class="nav-search-wrap">
+                    <div class="search-box">
+                        <span class="search-icon">⌕</span>
+                        <input type="text" id="search-input" placeholder="搜索书籍或作者...">
+                    </div>
+                </div>
+            </header>
+
+            <!-- 右侧书籍信息面板 -->
+            <aside id="right-panel" class="hidden">
+                <div class="panel-close" id="panel-close">✕</div>
+                <div class="panel-book-cover" id="panel-cover"></div>
+                <div class="panel-book-title" id="panel-title">选择一颗星球</div>
+                <div class="panel-book-author" id="panel-author"></div>
+                <div class="panel-book-genre" id="panel-genre"></div>
+                <div class="panel-section-title">AI Insights</div>
+                <div class="panel-ai-insight" id="panel-insight">在浩瀚的书籍宇宙中点击任意星球，AI 将为你揭示其叙事内核与跨文本关联。</div>
+                <div class="audio-status">
+                    <div class="audio-dot"></div>
+                    <span class="audio-label" id="audio-label">沉浸式音频 · 就绪</span>
+                </div>
+                <button class="cta-button" id="cta-btn">▸ 开启人生体验</button>
+            </aside>
+
+            <!-- 纸条便签 -->
+            <div id="paper-note">
+                <div class="tape"></div>
+                <div class="note-icon">☕</div>
+                点击星球，查看书籍名言。
+            </div>
+
+            <!-- 底部控制提示 -->
+            <footer id="constellation-footer">
+                <div class="controls-hint">
+                    <span>WASD</span> 飞行 · <span>拖拽</span> 旋转视角 · <span>滚轮</span> 缩放 · <span>点击星球</span> 查看书籍
+                </div>
+            </footer>
+        </div>
+
+    </div>
+
+    <!-- 书籍体验家界面 -->
+    <div id="experience-screen" class="screen">
+        <canvas id="experience-canvas"></canvas>
+        <div class="experience-ui">
+            <button class="experience-close-btn" id="experience-close-btn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="experience-layout">
+                <!-- 左侧：剧情对话区 -->
+                <div class="experience-main">
+                    <div class="experience-messages" id="experience-messages"></div>
+                    <div class="experience-actions" id="experience-actions"></div>
+                    <div class="experience-input-area">
+                        <input type="text" class="experience-input" id="experience-input" placeholder="输入您的描述或选择一个动作......">
+                        <button class="experience-send-btn" id="experience-send-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <!-- 右侧：角色信息面板 -->
+                <div class="experience-sidebar">
+                    <div class="char-card">
+                        <div class="char-avatar" id="char-avatar"></div>
+                        <div class="char-name" id="char-name">--</div>
+                        <div class="char-role" id="char-role">--</div>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">生命值</span>
+                            <span class="stat-num" id="char-hp-text">100/100</span>
+                        </div>
+                        <div class="hp-bar-wrap">
+                            <div class="hp-bar" id="char-hp-bar" style="width:100%"></div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">心情</span>
+                            <span class="stat-num" id="char-mood-text">平静</span>
+                        </div>
+                        <div class="mood-bar-wrap">
+                            <div class="mood-bar" id="char-mood-bar" style="width:70%"></div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">状态</span>
+                            <span class="stat-num" id="char-status">良好</span>
+                        </div>
+                    </div>
+                    <div class="char-desc" id="char-desc"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏界面 -->
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <div class="game-header">
+                <div class="player-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">角色</span>
+                        <span class="stat-value" id="player-name">穿越者</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">境界</span>
+                        <span class="stat-value" id="player-cultivation">炼气期一层</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">地点</span>
+                        <span class="stat-value location" id="player-location">黄枫谷</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">任务</span>
+                        <span class="stat-value task" id="player-task">了解当前处境</span>
+                    </div>
+                </div>
+                <div class="game-title-display">
+                    <span class="book-icon">📖</span>
+                    <span id="game-book-title">凡人修仙传</span>
+                </div>
+                <button class="game-back-btn" id="game-back-btn">返回选择</button>
+            </div>
+
+            <div class="game-main">
+                <div class="narrative-area" id="narrative-area"></div>
+                <div class="action-area">
+                    <div class="action-label">选择你的行动：</div>
+                    <div class="action-buttons" id="action-buttons"></div>
+                    <div class="free-input-area">
+                        <textarea class="free-input" id="free-input" placeholder="或者输入你想做的事..." rows="1"></textarea>
+                        <button class="free-input-btn" id="free-input-btn">发送</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-sidebar">
+                <div class="system-panel">
+                    <div class="panel-header">
+                        <span>📋</span>
+                        <span>系统提示</span>
+                    </div>
+                    <div class="panel-content" id="system-messages"></div>
+                </div>
+                <div class="npc-panel">
+                    <div class="panel-header">
+                        <span>💬</span>
+                        <span>NPC对话</span>
+                    </div>
+                    <div class="npc-messages" id="npc-messages"></div>
+                    <div class="npc-select-area">
+                        <div class="npc-select-label">选择对话对象：</div>
+                        <div class="npc-select-buttons" id="npc-buttons"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/nebula.js"></script>
+    <script src="js/constellation.js"></script>
+    <script src="js/experience-scene.js"></script>
+    <script src="js/book-experience.js"></script>
+</body>
+</html>
