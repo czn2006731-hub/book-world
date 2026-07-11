@@ -57,7 +57,6 @@ body {
     visibility: visible;
 }
 
-/* Canvas星空背景 */
 canvas[id^="stars-canvas"] {
     position: absolute;
     top: 0;
@@ -68,6 +67,12 @@ canvas[id^="stars-canvas"] {
 }
 
 /* ==================== 登录界面 ==================== */
+#login-screen {
+    background: 
+        url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80') center/cover no-repeat,
+        #050510;
+}
+
 .login-container {
     position: relative;
     z-index: 10;
@@ -79,31 +84,69 @@ canvas[id^="stars-canvas"] {
 }
 
 .login-box {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 2px solid rgba(255, 255, 255, 0.5);
     border-radius: 20px;
-    padding: 40px;
+    padding: 50px 40px;
     width: 100%;
-    max-width: 400px;
-    box-shadow: var(--glass-shadow);
+    max-width: 380px;
+    box-shadow: 
+        0 0 15px rgba(255, 255, 255, 0.5),
+        0 0 30px rgba(255, 255, 255, 0.3),
+        0 0 45px rgba(255, 255, 255, 0.2),
+        0 0 60px rgba(255, 255, 255, 0.1),
+        inset 0 0 20px rgba(255, 255, 255, 0.1),
+        0 8px 32px rgba(0, 0, 0, 0.3);
     text-align: center;
+    position: relative;
+    animation: borderPulse 6s ease-in-out infinite alternate;
+}
+
+@keyframes borderPulse {
+    0% { 
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 
+            0 0 12px rgba(255, 255, 255, 0.35),
+            0 0 25px rgba(255, 255, 255, 0.2),
+            0 0 40px rgba(255, 255, 255, 0.12),
+            inset 0 0 18px rgba(255, 255, 255, 0.06),
+            0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    100% { 
+        border-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 
+            0 0 25px rgba(255, 255, 255, 0.7),
+            0 0 50px rgba(255, 255, 255, 0.5),
+            0 0 75px rgba(255, 255, 255, 0.3),
+            0 0 100px rgba(255, 255, 255, 0.2),
+            inset 0 0 35px rgba(255, 255, 255, 0.15),
+            0 8px 32px rgba(0, 0, 0, 0.3);
+    }
 }
 
 .login-title {
-    font-size: 2rem;
-    margin-bottom: 10px;
-    background: linear-gradient(135deg, var(--scifi-primary), var(--xianxia-primary), var(--romance-primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-family: 'Pacifico', cursive;
+    font-size: 2.8rem;
+    margin-bottom: 25px;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    letter-spacing: 1px;
+    display: block;
+    text-align: center;
+    line-height: 1.2;
 }
 
-.login-subtitle {
-    color: var(--text-muted);
-    margin-bottom: 30px;
-    font-size: 0.9rem;
+.login-container {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 20px;
+    padding-bottom: 100px;
 }
 
 .auth-form {
@@ -120,58 +163,67 @@ canvas[id^="stars-canvas"] {
 
 .form-group input {
     width: 100%;
-    padding: 15px 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 10px;
-    color: var(--text-white);
-    font-size: 1rem;
+    padding: 14px 20px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
+    letter-spacing: 0.5px;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: var(--scifi-primary);
-    box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
 }
 
 .form-group input::placeholder {
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.5px;
 }
 
 .btn-primary {
     width: 100%;
-    padding: 15px;
-    background: linear-gradient(135deg, var(--scifi-primary), var(--scifi-secondary));
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.9);
     border: none;
-    border-radius: 10px;
-    color: var(--text-white);
-    font-size: 1rem;
+    border-radius: 12px;
+    color: #111133;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: 10px;
+    letter-spacing: 2px;
+    backdrop-filter: blur(10px);
 }
 
 .btn-primary:hover {
+    background: #ffffff;
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(74, 144, 226, 0.4);
+    box-shadow: 0 10px 40px rgba(255, 255, 255, 0.25);
 }
 
-.switch-text {
-    margin-top: 20px;
-    color: var(--text-muted);
-    font-size: 0.9rem;
+.auth-links {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
 }
 
-.switch-text a {
-    color: var(--scifi-primary);
+.auth-links a {
+    color: rgba(255, 255, 255, 0.55);
     text-decoration: none;
+    font-size: 0.85rem;
     transition: color 0.3s ease;
+    letter-spacing: 0.5px;
 }
 
-.switch-text a:hover {
-    color: var(--scifi-secondary);
+.auth-links a:hover {
+    color: #ffffff;
 }
 
 /* ==================== 主界面 ==================== */

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>书籍人生模拟器</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Sacramento&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
@@ -17,37 +18,40 @@
 <body>
     <!-- 登录注册界面 -->
     <div id="login-screen" class="screen active">
-        <canvas id="stars-canvas-login"></canvas>
         <div class="login-container">
             <div class="login-box">
-                <h1 class="login-title">书籍人生模拟器</h1>
-                <p class="login-subtitle">穿越书籍，体验不同人生</p>
+                <h1 class="login-title">Book Realm</h1>
                 
                 <!-- 登录表单 -->
                 <form id="login-form" class="auth-form active">
                     <div class="form-group">
-                        <input type="text" id="login-username" placeholder="用户名" required>
+                        <input type="text" id="login-username" placeholder="Username" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" id="login-password" placeholder="密码" required>
+                        <input type="password" id="login-password" placeholder="Password" required>
                     </div>
-                    <button type="submit" class="btn-primary">登录</button>
-                    <p class="switch-text">还没有账号？<a href="#" id="show-register">立即注册</a></p>
+                    <button type="submit" class="btn-primary">LOG IN</button>
+                    <div class="auth-links">
+                        <a href="#" id="forgot-password">Forgot Password?</a>
+                        <a href="#" id="show-register">Sign Up</a>
+                    </div>
                 </form>
                 
                 <!-- 注册表单 -->
                 <form id="register-form" class="auth-form">
                     <div class="form-group">
-                        <input type="text" id="register-username" placeholder="用户名" required>
+                        <input type="text" id="register-username" placeholder="Username" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" id="register-password" placeholder="密码" required>
+                        <input type="password" id="register-password" placeholder="Password" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" id="register-confirm" placeholder="确认密码" required>
+                        <input type="password" id="register-confirm" placeholder="Confirm Password" required>
                     </div>
-                    <button type="submit" class="btn-primary">注册</button>
-                    <p class="switch-text">已有账号？<a href="#" id="show-login">立即登录</a></p>
+                    <button type="submit" class="btn-primary">SIGN UP</button>
+                    <div class="auth-links">
+                        <a href="#" id="show-login">Back to Login</a>
+                    </div>
                 </form>
             </div>
         </div>
@@ -272,6 +276,7 @@
     </div>
 
     <script src="js/main.js"></script>
+    <script src="js/universe.js"></script>
     <script src="js/nebula.js"></script>
     <script src="js/constellation.js"></script>
     <script src="js/experience-scene.js"></script>

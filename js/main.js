@@ -73,65 +73,13 @@ function switchScreen(screenId) {
     }
 }
 
-// 初始化星空背景
-function initStarsBackground(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    let animationId;
-    
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    
-    resize();
-    window.addEventListener('resize', resize);
-    
-    const stars = [];
-    const numStars = 200;
-    
-    for (let i = 0; i < numStars; i++) {
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 2 + 0.5,
-            speed: Math.random() * 0.5 + 0.1,
-            opacity: Math.random() * 0.8 + 0.2
-        });
-    }
-    
-    function animate() {
-        ctx.fillStyle = 'rgba(10, 10, 26, 0.1)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        stars.forEach(star => {
-            ctx.beginPath();
-            ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
-            ctx.fill();
-            
-            star.y -= star.speed;
-            if (star.y < 0) {
-                star.y = canvas.height;
-                star.x = Math.random() * canvas.width;
-            }
-        });
-        
-        animationId = requestAnimationFrame(animate);
-    }
-    
-    animate();
-    return animationId;
-}
-
 // 登录表单处理
 function initLoginForm() {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const showRegister = document.getElementById('show-register');
     const showLogin = document.getElementById('show-login');
+    const forgotPassword = document.getElementById('forgot-password');
     
     showRegister.addEventListener('click', (e) => {
         e.preventDefault();
@@ -144,6 +92,13 @@ function initLoginForm() {
         registerForm.classList.remove('active');
         loginForm.classList.add('active');
     });
+    
+    if (forgotPassword) {
+        forgotPassword.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('密码重置功能即将上线！');
+        });
+    }
     
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -199,7 +154,6 @@ function initBackButton() {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
-    initStarsBackground('stars-canvas-login');
     initLoginForm();
     initBackButton();
 });
