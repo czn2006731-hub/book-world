@@ -90,7 +90,7 @@
                 <p class="nebula-desc">踏上修仙之路，追求长生大道</p>
             </div>
             <div class="nebula-info" id="info-romance">
-                <h3>言情星云</h3>
+                <h3>文学星云</h3>
                 <div class="book-list">
                     <p>代表书籍：</p>
                     <ul>
@@ -107,13 +107,9 @@
     <!-- 星座界面 - 书籍选择 -->
     <div id="book-screen" class="screen">
         <canvas id="constellation-canvas"></canvas>
+        <div id="vignette-overlay"></div>
         
         <div id="constellation-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none;">
-            <!-- 迪士尼风格标题 -->
-            <div class="disney-title" id="disney-title">
-                <div class="disney-text">BookVerse</div>
-            </div>
-
             <!-- 顶部导航 -->
             <header id="constellation-nav">
                 <button class="back-btn-constellation" id="back-btn">← 返回星云</button>
@@ -124,6 +120,7 @@
                         <input type="text" id="search-input" placeholder="搜索书籍或作者...">
                     </div>
                 </div>
+                <button class="hamburger-btn" id="mobile-menu-btn" aria-label="菜单">☰</button>
             </header>
 
             <!-- 右侧书籍信息面板 -->
@@ -132,13 +129,23 @@
                 <div class="panel-book-cover" id="panel-cover"></div>
                 <div class="panel-book-title" id="panel-title">选择一颗星球</div>
                 <div class="panel-book-author" id="panel-author"></div>
-                <div class="panel-book-genre" id="panel-genre"></div>
-                <div class="panel-section-title">AI Insights</div>
+                <div class="panel-divider"></div>
+                <div class="panel-section-title">核心洞察</div>
                 <div class="panel-ai-insight" id="panel-insight">在浩瀚的书籍宇宙中点击任意星球，AI 将为你揭示其叙事内核与跨文本关联。</div>
-                <div class="audio-status">
-                    <div class="audio-dot"></div>
-                    <span class="audio-label" id="audio-label">沉浸式音频 · 就绪</span>
+                <div class="panel-section-title">书籍简介</div>
+                <div class="panel-summary" id="panel-summary">选择一本书，了解它的故事。</div>
+                <div class="panel-divider"></div>
+                <div class="panel-section-title">世界观速览</div>
+                <div class="panel-world" id="panel-world">等待探索...</div>
+                <div class="panel-divider"></div>
+                <div class="panel-section-title">探索进度</div>
+                <div class="panel-progress-wrap">
+                    <div class="panel-progress-text" id="panel-progress-text">0%</div>
+                    <div class="panel-progress-bar"><div class="panel-progress-fill" id="panel-progress-fill"></div></div>
                 </div>
+                <div class="panel-divider"></div>
+                <div class="panel-section-title">相关书籍</div>
+                <div class="panel-related" id="panel-related"></div>
                 <button class="cta-button" id="cta-btn">▸ 开启人生体验</button>
             </aside>
 
@@ -155,59 +162,6 @@
                     <span>WASD</span> 飞行 · <span>拖拽</span> 旋转视角 · <span>滚轮</span> 缩放 · <span>点击星球</span> 查看书籍
                 </div>
             </footer>
-        </div>
-
-    </div>
-
-    <!-- 书籍体验家界面 -->
-    <div id="experience-screen" class="screen">
-        <canvas id="experience-canvas"></canvas>
-        <div class="experience-ui">
-            <button class="experience-close-btn" id="experience-close-btn">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-            <div class="experience-layout">
-                <!-- 左侧：剧情对话区 -->
-                <div class="experience-main">
-                    <div class="experience-messages" id="experience-messages"></div>
-                    <div class="experience-actions" id="experience-actions"></div>
-                    <div class="experience-input-area">
-                        <input type="text" class="experience-input" id="experience-input" placeholder="输入您的描述或选择一个动作......">
-                        <button class="experience-send-btn" id="experience-send-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                        </button>
-                    </div>
-                </div>
-                <!-- 右侧：角色信息面板 -->
-                <div class="experience-sidebar">
-                    <div class="char-card">
-                        <div class="char-avatar" id="char-avatar"></div>
-                        <div class="char-name" id="char-name">--</div>
-                        <div class="char-role" id="char-role">--</div>
-                    </div>
-                    <div class="char-stats">
-                        <div class="stat-row">
-                            <span class="stat-label">生命值</span>
-                            <span class="stat-num" id="char-hp-text">100/100</span>
-                        </div>
-                        <div class="hp-bar-wrap">
-                            <div class="hp-bar" id="char-hp-bar" style="width:100%"></div>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">心情</span>
-                            <span class="stat-num" id="char-mood-text">平静</span>
-                        </div>
-                        <div class="mood-bar-wrap">
-                            <div class="mood-bar" id="char-mood-bar" style="width:70%"></div>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">状态</span>
-                            <span class="stat-num" id="char-status">良好</span>
-                        </div>
-                    </div>
-                    <div class="char-desc" id="char-desc"></div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -252,7 +206,7 @@
                 </div>
             </div>
 
-            <div class="game-sidebar">
+            <div class="game-sidebar mobile-safe-bottom">
                 <div class="system-panel">
                     <div class="panel-header">
                         <span>📋</span>
@@ -273,13 +227,18 @@
                 </div>
             </div>
         </div>
+
+        <!-- 移动端侧边栏切换标签 -->
+        <div class="mobile-sidebar-tabs" id="mobile-sidebar-tabs">
+            <button class="mobile-sidebar-tab active" data-target="system">📋 系统提示</button>
+            <button class="mobile-sidebar-tab" data-target="npc">💬 NPC对话</button>
+            <button class="mobile-sidebar-tab" id="mobile-sidebar-close">✕ 收起</button>
+        </div>
     </div>
 
     <script src="js/main.js"></script>
-    <script src="js/universe.js"></script>
     <script src="js/nebula.js"></script>
     <script src="js/constellation.js"></script>
-    <script src="js/experience-scene.js"></script>
-    <script src="js/book-experience.js"></script>
+    <script src="js/game.js"></script>
 </body>
 </html>

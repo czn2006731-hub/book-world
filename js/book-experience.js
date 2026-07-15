@@ -408,7 +408,7 @@ function handleUserInput() {
 
 // ─── AI 回复 ──────────────────────────────────────
 function fetchAiResponse(userMessage) {
-  var API_BASE = 'http://localhost:3000/api';
+  var API_BASE = '/book-realm/api';
   fetch(API_BASE + '/chat/narrative', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

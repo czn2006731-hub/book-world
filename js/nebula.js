@@ -21,7 +21,7 @@ const nebulaColors = {
     }
 };
 
-let scene, camera, renderer;
+let scene, camera, renderer, controls;
 let nebulaGroups = {};
 let starField, starData;
 let meteors = [];
@@ -31,26 +31,13 @@ let animationId = null;
 let isPaused = false;
 let raycaster, mouse;
 let hoveredNebula = null;
-let targetCameraZ = 28;
 const CAMERA_Z_MIN = 12;
 const CAMERA_Z_MAX = 55;
-const CAMERA_LERP = 0.06;
-
-let cameraTheta = 0.3;
-let cameraPhi = 0.1;
-let targetTheta = 0.3;
-let targetPhi = 0.1;
-const ORBIT_SPEED = 0.004;
-const ORBIT_LERP = 0.06;
-let isDragging = false;
-let lastMouse = { x: 0, y: 0 };
-let cameraRadius = 28;
-let targetRadius = 28;
 
 const nebulaPositions = {
-    scifi: new THREE.Vector3(-13, 2.5, -4),
-    xianxia: new THREE.Vector3(2, -3.5, 3),
-    romance: new THREE.Vector3(11, 4, -6)
+    scifi: new THREE.Vector3(-10, 0, -9),
+    xianxia: new THREE.Vector3(0, 0, 5),
+    romance: new THREE.Vector3(10, 0, -9)
 };
 
 // ====== 纹理生成 ======
@@ -407,7 +394,7 @@ function initNebulaScene() {
     scene.fog = new THREE.FogExp2('#0a0a1e', 0.006);
 
     camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 400);
-    camera.position.set(0, 0, targetCameraZ);
+    camera.position.set(0, 8, 28);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -463,14 +450,23 @@ function initNebulaScene() {
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2(-999, -999);
 
-    const c = renderer.domElement;
+    // 使用 OrbitControls 实现和星座界面一致的手势操作
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enableZoom = true;
+    controls.zoomSpeed = 1.0;
+    controls.minDistance = CAMERA_Z_MIN;
+    controls.maxDistance = CAMERA_Z_MAX;
+    controls.enablePan = false;
+    controls.target.set(0, 0, 0);
+    controls.update();
+
+    // 仅保留 click 用于点击星云跳转
+    renderer.domElement.addEventListener('click', onClick);
+    renderer.domElement.addEventListener('mousemove', onMouseMove);
+    renderer.domElement.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('resize', onResize);
-    window.addEventListener('wheel', onWheel, { passive: false });
-    c.addEventListener('mousedown', onDown);
-    c.addEventListener('mousemove', onMove);
-    c.addEventListener('mouseup', onUp);
-    c.addEventListener('mouseleave', onUp);
-    c.addEventListener('click', onClick);
 
     meteorTimer = setInterval(spawnMeteor, 900 + Math.random()*1100);
     for (let i=0; i<4; i++) { const m=createMeteor(); scene.add(m); meteors.push(m); }
@@ -491,41 +487,29 @@ function spawnMeteor() {
 }
 
 function onResize() {
-    if (!camera||!renderer) return;
-    camera.aspect = window.innerWidth/window.innerHeight;
+    if (!camera || !renderer) return;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function onWheel(e) {
-    if (isPaused) return;
-    e.preventDefault();
-    targetRadius += e.deltaY*0.015;
-    targetRadius = Math.max(CAMERA_Z_MIN, Math.min(CAMERA_Z_MAX, targetRadius));
+function onMouseMove(e) {
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 }
 
-function onDown(e) { isDragging=true; lastMouse.x=e.clientX; lastMouse.y=e.clientY; }
-
-function onMove(e) {
-    if (isPaused) return;
-    mouse.x = (e.clientX/window.innerWidth)*2-1;
-    mouse.y = -(e.clientY/window.innerHeight)*2+1;
-    if (isDragging) {
-        targetTheta -= (e.clientX-lastMouse.x)*ORBIT_SPEED;
-        targetPhi -= (e.clientY-lastMouse.y)*ORBIT_SPEED;
-        targetPhi = Math.max(-0.6, Math.min(0.6, targetPhi));
-        lastMouse.x = e.clientX;
-        lastMouse.y = e.clientY;
+function onTouchMove(e) {
+    e.preventDefault();
+    if (e.touches && e.touches.length > 0) {
+        mouse.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
     }
 }
 
-function onUp() { isDragging=false; }
-
 function onClick() {
-    if (isPaused||isDragging||!hoveredNebula) return;
+    if (isPaused || !hoveredNebula) return;
     currentNebula = hoveredNebula;
     switchScreen('book');
-    // 初始化星座界面
     if (typeof window.initConstellation === 'function') {
         window.initConstellation(hoveredNebula);
     }
@@ -557,14 +541,7 @@ function animate() {
 
     const t = Date.now() * 0.001;
 
-    // 相机
-    cameraTheta += (targetTheta-cameraTheta)*ORBIT_LERP;
-    cameraPhi += (targetPhi-cameraPhi)*ORBIT_LERP;
-    cameraRadius += (targetRadius-cameraRadius)*CAMERA_LERP;
-    camera.position.x = cameraRadius*Math.sin(cameraTheta)*Math.cos(cameraPhi);
-    camera.position.y = cameraRadius*Math.sin(cameraPhi);
-    camera.position.z = cameraRadius*Math.cos(cameraTheta)*Math.cos(cameraPhi);
-    camera.lookAt(0, 0, 0);
+    controls.update();
 
     // 星空飘动+闪烁
     if (starField) {
@@ -679,16 +656,14 @@ function resumeNebulaScene() {
 function destroyNebulaScene() {
     pauseNebulaScene();
     window.removeEventListener('resize', onResize);
-    window.removeEventListener('wheel', onWheel);
     const c = document.getElementById('three-canvas');
     if (c) {
-        c.removeEventListener('mousedown', onDown);
-        c.removeEventListener('mousemove', onMove);
-        c.removeEventListener('mouseup', onUp);
-        c.removeEventListener('mouseleave', onUp);
         c.removeEventListener('click', onClick);
+        c.removeEventListener('mousemove', onMouseMove);
+        c.removeEventListener('touchmove', onTouchMove);
     }
+    if (controls) { controls.dispose(); controls = null; }
     if (renderer) renderer.dispose();
-    scene=null; camera=null; renderer=null;
-    nebulaGroups={}; starField=null; meteors=[]; bgNebulaClouds=[]; randomFlashes=[];
+    scene = null; camera = null; renderer = null;
+    nebulaGroups = {}; starField = null; meteors = []; bgNebulaClouds = []; randomFlashes = [];
 }

@@ -14,7 +14,7 @@ let gameState = {
 };
 
 // API基础地址（后端服务地址）
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'http://localhost:8080/api';
 
 // ==================== 预设剧情数据 ====================
 
@@ -115,16 +115,20 @@ async function initGame(bookId, book) {
     // 清空内容
     clearGameContent();
     
-    // 尝试连接后端
+    // 尝试连接后端（5秒超时）
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(function() { controller.abort(); }, 5000);
         const response = await fetch(`${API_BASE}/chat/init`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 bookId,
                 playerName: '穿越者'
-            })
+            }),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
         
         if (!response.ok) throw new Error('服务连接失败');
         

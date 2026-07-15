@@ -25,14 +25,14 @@ const nebulaData = {
         ]
     },
     romance: {
-        name: '言情星云',
-        colors: ['#e91e63', '#ff6b9d'],
+        name: '文学星云',
+        colors: ['#e74c3c', '#9b59b6'],
         books: [
-            { title: '微微一笑很倾城', author: '顾漫', desc: '网游里的爱情延伸到现实，一段甜蜜的校园恋爱故事。' },
-            { title: '何以笙箫默', author: '顾漫', desc: '一段年少时的爱情，牵出一生的纠缠。七年后的重逢，是破镜重圆还是再次错过？' },
-            { title: '致我们终将逝去的青春', author: '辛夷坞', desc: '青春是一场盛大的遇见，那些年我们一起追过的梦想与爱情。' },
-            { title: '你好，旧时光', author: '八月长安', desc: '余周周的成长故事，关于友情、爱情和青春的美好回忆。' },
-            { title: '最美的时光', author: '桐华', desc: '时光流逝，那些曾经的美好是否还能重现？' }
+            { title: '红楼梦', author: '曹雪芹', desc: '以贾宝玉与林黛玉、薛宝钗的爱情悲剧为主线，揭示了贾、史、王、薛四大家族的兴衰。' },
+            { title: '西游记', author: '吴承恩', desc: '唐僧师徒四人西天取经，历经九九八十一难。一部充满想象力的神魔小说。' },
+            { title: '水浒传', author: '施耐庵', desc: '一百零八将梁山聚义，替天行道。一部充满血性与侠义的英雄史诗。' },
+            { title: '三国演义', author: '罗贯中', desc: '东汉末年的群雄逐鹿，魏蜀吴三足鼎立。权谋与武力的较量。' },
+            { title: '百年孤独', author: '加西亚·马尔克斯', desc: '布恩迪亚家族七代人的传奇故事，魔幻现实主义的巅峰之作。' }
         ]
     }
 };
@@ -65,12 +65,64 @@ function switchScreen(screenId) {
         resumeNebulaScene();
     }
 
-    // 返回书籍选择界面时，重新初始化星座
     if (screenId === 'book' && currentNebula) {
-        setTimeout(function() {
-            enterConstellation(currentNebula);
-        }, 100);
+        if (typeof window.initConstellation === 'function') {
+            window.initConstellation(currentNebula);
+        }
     }
+}
+
+// 初始化星空背景
+function initStarsBackground(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    let animationId;
+    
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    
+    resize();
+    window.addEventListener('resize', resize);
+    
+    const stars = [];
+    const numStars = 200;
+    
+    for (let i = 0; i < numStars; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 2 + 0.5,
+            speed: Math.random() * 0.5 + 0.1,
+            opacity: Math.random() * 0.8 + 0.2
+        });
+    }
+    
+    function animate() {
+        ctx.fillStyle = 'rgba(10, 10, 26, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        stars.forEach(star => {
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+            ctx.fill();
+            
+            star.y -= star.speed;
+            if (star.y < 0) {
+                star.y = canvas.height;
+                star.x = Math.random() * canvas.width;
+            }
+        });
+        
+        animationId = requestAnimationFrame(animate);
+    }
+    
+    animate();
+    return animationId;
 }
 
 // 登录表单处理
@@ -79,7 +131,6 @@ function initLoginForm() {
     const registerForm = document.getElementById('register-form');
     const showRegister = document.getElementById('show-register');
     const showLogin = document.getElementById('show-login');
-    const forgotPassword = document.getElementById('forgot-password');
     
     showRegister.addEventListener('click', (e) => {
         e.preventDefault();
@@ -92,13 +143,6 @@ function initLoginForm() {
         registerForm.classList.remove('active');
         loginForm.classList.add('active');
     });
-    
-    if (forgotPassword) {
-        forgotPassword.addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('密码重置功能即将上线！');
-        });
-    }
     
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -139,7 +183,6 @@ function initNebulas() {
 
 // 进入星座界面
 function enterConstellation(type) {
-    currentNebula = type;
     if (typeof window.initConstellation === 'function') {
         window.initConstellation(type);
     }
@@ -152,8 +195,95 @@ function initBackButton() {
     });
 }
 
+// 移动端 UI 初始化
+function initMobileUI() {
+    // 汉堡菜单 - 切换左侧分类栏和搜索栏的可见性
+    var menuBtn = document.getElementById('mobile-menu-btn');
+    var sideCats = document.getElementById('side-cats');
+    var navSearch = document.querySelector('.nav-search-wrap');
+    var menuOpen = false;
+
+    if (menuBtn && sideCats) {
+        menuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            menuOpen = !menuOpen;
+            if (menuOpen) {
+                sideCats.style.display = 'flex';
+                if (navSearch) navSearch.style.display = 'block';
+                menuBtn.textContent = '✕';
+            } else {
+                sideCats.style.display = '';
+                if (navSearch) navSearch.style.display = '';
+                menuBtn.textContent = '☰';
+            }
+        });
+    }
+
+    // 移动端游戏侧边栏切换
+    var sidebar = document.querySelector('.game-sidebar');
+    var tabs = null;
+    var sidebarTabs = document.getElementById('mobile-sidebar-tabs');
+    if (sidebarTabs) {
+        tabs = sidebarTabs.querySelectorAll('.mobile-sidebar-tab');
+
+        tabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                var target = tab.getAttribute('data-target');
+                if (!target) {
+                    // 关闭按钮
+                    if (sidebar) sidebar.classList.remove('mobile-open');
+                    tabs.forEach(function(t) { t.classList.remove('active'); });
+                    return;
+                }
+                // 高亮当前标签
+                tabs.forEach(function(t) {
+                    if (t.getAttribute('data-target')) {
+                        t.classList.toggle('active', t === tab);
+                    }
+                });
+                // 显示侧边栏并切换面板
+                if (sidebar) {
+                    sidebar.classList.add('mobile-open');
+                    var sysPanel = sidebar.querySelector('.system-panel');
+                    var npcPanel = sidebar.querySelector('.npc-panel');
+                    if (sysPanel) sysPanel.style.display = (target === 'system') ? 'flex' : 'none';
+                    if (npcPanel) npcPanel.style.display = (target === 'npc') ? 'flex' : 'none';
+                }
+            });
+        });
+    }
+
+    // 点击遮罩层关闭侧边栏
+    document.addEventListener('click', function(e) {
+        if (menuOpen && sideCats && !sideCats.contains(e.target) && e.target !== menuBtn
+            && (!navSearch || !navSearch.contains(e.target))) {
+            menuOpen = false;
+            sideCats.style.display = '';
+            if (navSearch) navSearch.style.display = '';
+            menuBtn.textContent = '☰';
+        }
+
+        // 移动端游戏侧边栏：点击外部关闭
+        if (sidebar) {
+            var sidebarTabsEl = document.getElementById('mobile-sidebar-tabs');
+            if (sidebar.classList.contains('mobile-open') &&
+                !sidebar.contains(e.target) &&
+                (!sidebarTabsEl || !sidebarTabsEl.contains(e.target))) {
+                sidebar.classList.remove('mobile-open');
+                if (tabs) {
+                    tabs.forEach(function(t) { t.classList.remove('active'); });
+                }
+                // 恢复第一个标签为active
+                var firstTab = sidebarTabsEl && sidebarTabsEl.querySelector('.mobile-sidebar-tab[data-target]');
+                if (firstTab) firstTab.classList.add('active');
+            }
+        }
+    });
+}
+
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     initLoginForm();
     initBackButton();
+    initMobileUI();
 });
