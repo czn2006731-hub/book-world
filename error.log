@@ -1,0 +1,217 @@
+7月 15, 2026 7:32:02 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: LOCATING |> In progress...
+7月 15, 2026 7:32:02 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> In progress...
+7月 15, 2026 7:32:24 下午 me.friwi.jcefmaven.impl.step.fetch.PackageDownloader downloadNatives
+警告: Request failed with exception on mirror: https://github.com/jcefmaven/jcefmaven/releases/download/146.0.10/jcef-natives-windows-amd64-jcef-d3de827+cef-146.0.10+g8219561+chromium-146.0.7680.179.jar (ConnectException: Connection timed out: connect)
+7月 15, 2026 7:32:25 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 0.0
+7月 15, 2026 7:32:27 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 1.0
+7月 15, 2026 7:32:27 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 2.0
+7月 15, 2026 7:32:28 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 3.0
+7月 15, 2026 7:32:28 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 4.0
+7月 15, 2026 7:32:28 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 5.0
+7月 15, 2026 7:32:29 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 6.0
+7月 15, 2026 7:32:29 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 7.0
+7月 15, 2026 7:32:29 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 8.0
+7月 15, 2026 7:32:29 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 9.0
+7月 15, 2026 7:32:30 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 10.0
+7月 15, 2026 7:32:30 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 11.0
+7月 15, 2026 7:32:30 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 12.0
+7月 15, 2026 7:32:31 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 13.0
+7月 15, 2026 7:32:31 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 14.0
+7月 15, 2026 7:32:32 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 15.0
+7月 15, 2026 7:32:32 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 16.0
+7月 15, 2026 7:32:33 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 17.0
+7月 15, 2026 7:32:33 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 18.0
+7月 15, 2026 7:32:33 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 19.0
+7月 15, 2026 7:32:34 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 20.0
+7月 15, 2026 7:32:34 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 21.0
+7月 15, 2026 7:32:35 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 22.0
+7月 15, 2026 7:32:35 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 23.0
+7月 15, 2026 7:32:36 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 24.0
+7月 15, 2026 7:32:36 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 25.0
+7月 15, 2026 7:32:37 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 26.0
+7月 15, 2026 7:32:37 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 27.0
+7月 15, 2026 7:32:38 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 28.0
+7月 15, 2026 7:32:38 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 29.0
+7月 15, 2026 7:32:38 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 30.0
+7月 15, 2026 7:32:39 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 31.0
+7月 15, 2026 7:32:39 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 32.0
+7月 15, 2026 7:32:40 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 33.0
+7月 15, 2026 7:32:40 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 34.0
+7月 15, 2026 7:32:40 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 35.0
+7月 15, 2026 7:32:41 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 36.0
+7月 15, 2026 7:32:41 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 37.0
+7月 15, 2026 7:32:42 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 38.0
+7月 15, 2026 7:32:42 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 39.0
+7月 15, 2026 7:32:43 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 40.0
+7月 15, 2026 7:32:43 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 41.0
+7月 15, 2026 7:32:43 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 42.0
+7月 15, 2026 7:32:44 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 43.0
+7月 15, 2026 7:32:44 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 44.0
+7月 15, 2026 7:32:44 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 45.0
+7月 15, 2026 7:32:45 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 46.0
+7月 15, 2026 7:32:45 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 47.0
+7月 15, 2026 7:32:45 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 48.0
+7月 15, 2026 7:32:46 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 49.0
+7月 15, 2026 7:32:46 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 50.0
+7月 15, 2026 7:32:46 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 51.0
+7月 15, 2026 7:32:47 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 52.0
+7月 15, 2026 7:32:47 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 53.0
+7月 15, 2026 7:32:47 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 54.0
+7月 15, 2026 7:32:48 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 55.0
+7月 15, 2026 7:32:48 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 56.0
+7月 15, 2026 7:32:49 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 57.0
+7月 15, 2026 7:32:49 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 58.0
+7月 15, 2026 7:32:49 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 59.0
+7月 15, 2026 7:32:49 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 60.0
+7月 15, 2026 7:32:50 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 61.0
+7月 15, 2026 7:32:50 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 62.0
+7月 15, 2026 7:32:50 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 63.0
+7月 15, 2026 7:32:51 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 64.0
+7月 15, 2026 7:32:51 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 65.0
+7月 15, 2026 7:32:51 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 66.0
+7月 15, 2026 7:32:52 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 67.0
+7月 15, 2026 7:32:52 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 68.0
+7月 15, 2026 7:32:52 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 69.0
+7月 15, 2026 7:32:53 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 70.0
+7月 15, 2026 7:32:53 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 71.0
+7月 15, 2026 7:32:53 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 72.0
+7月 15, 2026 7:32:54 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 73.0
+7月 15, 2026 7:32:54 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 74.0
+7月 15, 2026 7:32:54 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 75.0
+7月 15, 2026 7:32:55 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 76.0
+7月 15, 2026 7:32:55 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 77.0
+7月 15, 2026 7:32:55 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 78.0
+7月 15, 2026 7:32:56 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 79.0
+7月 15, 2026 7:32:56 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 80.0
+7月 15, 2026 7:32:57 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 81.0
+7月 15, 2026 7:32:57 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 82.0
+7月 15, 2026 7:32:57 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 83.0
+7月 15, 2026 7:32:58 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 84.0
+7月 15, 2026 7:32:59 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 85.0
+7月 15, 2026 7:32:59 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 86.0
+7月 15, 2026 7:32:59 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 87.0
+7月 15, 2026 7:33:00 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 88.0
+7月 15, 2026 7:33:00 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 89.0
+7月 15, 2026 7:33:01 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 90.0
+7月 15, 2026 7:33:01 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 91.0
+7月 15, 2026 7:33:01 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 92.0
+7月 15, 2026 7:33:02 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 93.0
+7月 15, 2026 7:33:02 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 94.0
+7月 15, 2026 7:33:03 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 95.0
+7月 15, 2026 7:33:03 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 96.0
+7月 15, 2026 7:33:04 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 97.0
+7月 15, 2026 7:33:04 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 98.0
+7月 15, 2026 7:33:05 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 99.0
+7月 15, 2026 7:33:05 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: DOWNLOADING |> 100.0
+7月 15, 2026 7:33:05 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: EXTRACTING |> In progress...
+7月 15, 2026 7:33:09 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: INSTALL |> In progress...
+7月 15, 2026 7:33:09 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: INITIALIZING |> In progress...
+7月 15, 2026 7:33:11 下午 me.friwi.jcefmaven.impl.progress.ConsoleProgressHandler handleProgress
+信息: INITIALIZED |> In progress...
+[22788:22656:0715/193418.520:ERROR:cef\libcef\browser\browser_info_manager.cc:858] Timeout of new browser info response for frame 9-8AB6CBEA33D67823872300E1967A9337 (has_rfh=0)

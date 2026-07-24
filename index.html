@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书籍人生模拟器</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/system-panel.css">
+    <link rel="stylesheet" href="css/explore-life.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Sacramento&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <!-- 登录注册界面 -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-box">
+                <h1 class="login-title">Book Realm</h1>
+                
+                <!-- 登录表单 -->
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <input type="text" id="login-username" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="login-password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">LOG IN</button>
+                    <div class="auth-links">
+                        <a href="#" id="forgot-password">Forgot Password?</a>
+                        <a href="#" id="show-register">Sign Up</a>
+                    </div>
+                </form>
+                
+                <!-- 注册表单 -->
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <input type="text" id="register-username" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="register-password" placeholder="Password" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="register-confirm" placeholder="Confirm Password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">SIGN UP</button>
+                    <div class="auth-links">
+                        <a href="#" id="show-login">Back to Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主界面 - 宇宙星空 -->
+    <div id="main-screen" class="screen">
+        <canvas id="three-canvas"></canvas>
+        <!-- 全局菜单 -->
+        <button class="global-menu-btn" onclick="toggleGlobalMenu('main-menu')">☰</button>
+        <div class="global-menu-drop" id="main-menu">
+            <div class="global-menu-item">
+                <span>🎵 背景音乐</span>
+                <label class="bgm-toggle-switch">
+                    <input type="checkbox" class="bgm-toggle-cb" onchange="bgmToggle()" checked>
+                    <span class="bgm-toggle-slider"></span>
+                </label>
+            </div>
+            <button class="global-menu-item gm-quit" onclick="logoutToLogin()">✕ 退出登录</button>
+        </div>
+        <div class="main-container">
+            <h1 class="main-title">选择你的宇宙</h1>
+            <p class="main-subtitle">点击星云，穿越到不同的书籍世界 · 拖拽旋转 · 滚轮缩放</p>
+        </div>
+        <div class="nebula-overlays">
+            <div class="nebula-info" id="info-scifi">
+                <h3>科幻宇宙</h3>
+                <div class="book-list">
+                    <p>代表书籍：</p>
+                    <ul>
+                        <li>《三体》- 刘慈欣</li>
+                        <li>《流浪地球》- 刘慈欣</li>
+                        <li>《基地》- 阿西莫夫</li>
+                    </ul>
+                </div>
+                <p class="nebula-desc">探索宇宙的奥秘，见证文明的兴衰</p>
+            </div>
+            <div class="nebula-info" id="info-xianxia">
+                <h3>修仙宇宙</h3>
+                <div class="book-list">
+                    <p>代表书籍：</p>
+                    <ul>
+                        <li>《凡人修仙传》- 忘语</li>
+                        <li>《遮天》- 辰东</li>
+                        <li>《完美世界》- 辰东</li>
+                    </ul>
+                </div>
+                <p class="nebula-desc">踏上修仙之路，追求长生大道</p>
+            </div>
+            <div class="nebula-info" id="info-romance">
+                <h3>文学宇宙</h3>
+                <div class="book-list">
+                    <p>代表书籍：</p>
+                    <ul>
+                        <li>《微微一笑很倾城》- 顾漫</li>
+                        <li>《何以笙箫默》- 顾漫</li>
+                        <li>《致青春》- 辛夷坞</li>
+                    </ul>
+                </div>
+                <p class="nebula-desc">体验心动瞬间，感受浪漫爱情</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 探索人生 - 游戏交友世界 -->
+    <div id="explore-life-screen" class="screen">
+        <canvas id="explore-life-canvas"></canvas>
+        
+        <!-- 全局菜单 -->
+        <button class="global-menu-btn" onclick="toggleGlobalMenu('explore-menu')">☰</button>
+        <div class="global-menu-drop" id="explore-menu">
+            <div class="global-menu-item">
+                <span>🎵 背景音乐</span>
+                <label class="bgm-toggle-switch">
+                    <input type="checkbox" class="bgm-toggle-cb" onchange="bgmToggle()" checked>
+                    <span class="bgm-toggle-slider"></span>
+                </label>
+            </div>
+            <button class="global-menu-item gm-quit" onclick="logoutToLogin()">✕ 退出登录</button>
+        </div>
+
+        <!-- 界面上方：迪士尼风格短面板 -->
+        <header class="el-top-bar">
+            <button class="el-back-btn-minimal" onclick="switchScreen('book')">←</button>
+            <div class="el-top-center-title">life explore</div>
+            <div class="el-top-right-friend">friend</div>
+        </header>
+
+        <!-- 界面左边：好友框 -->
+        <div class="el-friends-panel">
+            <div class="el-friends-header">
+                <div class="el-search-row">
+                    <span class="el-search-icon">🔍</span>
+                    <input type="text" id="el-friends-search" placeholder="搜索好友...">
+                    <button class="el-search-add-btn" onclick="openSearchUserModal()" title="找朋友/搜索玩家ID" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0 4px;display:flex;align-items:center;justify-content:center;">➕</button>
+                </div>
+            </div>
+            <div class="el-friends-list" id="el-friends-list"></div>
+        </div>
+
+        <!-- 界面右侧：个人面板 (二分之一宽度 160px) -->
+        <div class="el-personal-panel" id="el-personal-panel"></div>
+
+        <!-- 弹窗：聊天框 -->
+        <div class="el-modal-overlay" id="el-chat-modal">
+            <div class="el-chat-box">
+                <div class="el-chat-header">
+                    <div class="chat-friend-meta">
+                        <img id="chat-friend-avatar" src="" class="chat-avatar">
+                        <div>
+                            <div id="chat-friend-name" class="chat-name">好友</div>
+                            <div id="chat-friend-tier" class="chat-tier">段位</div>
+                        </div>
+                    </div>
+                    <button class="el-modal-close" onclick="closeElModal('el-chat-modal')">✕</button>
+                </div>
+                <div class="el-chat-messages" id="chat-messages-box"></div>
+                <div class="el-chat-input-row">
+                    <input type="text" id="chat-input-field" placeholder="发送私聊消息..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <button onclick="sendChatMessage()">发送</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 弹窗：人生分享世界 (微信朋友圈风格) -->
+        <div class="el-modal-overlay" id="el-sharing-modal">
+            <div class="el-modal-box moments-box">
+                <div class="el-modal-header">
+                    <h2>🌟 人生分享世界</h2>
+                    <button class="el-modal-close" onclick="closeElModal('el-sharing-modal')">✕</button>
+                </div>
+                <div class="publish-moment-area">
+                    <textarea id="new-moment-text" placeholder="分享你此时此刻的所思所想、阅读感悟..."></textarea>
+                    <div class="publish-img-preview" id="moment-img-preview"></div>
+                    <div class="publish-moment-bar">
+                        <label class="img-upload-btn">
+                            📷 上传图片
+                            <input type="file" id="moment-img-file" accept="image/*" onchange="handleImageUpload(this, 'moment-img-preview')">
+                        </label>
+                        <button onclick="publishMoment()">发布动态</button>
+                    </div>
+                </div>
+                <div class="moments-list" id="moments-list-container"></div>
+            </div>
+        </div>
+
+        <!-- 弹窗：书籍交流 - 输入书籍名UI弹窗 -->
+        <div class="el-modal-overlay" id="el-book-select-modal">
+            <div class="el-modal-box book-select-box">
+                <div class="el-modal-header">
+                    <h2>📖 进入书籍交流世界</h2>
+                    <button class="el-modal-close" onclick="closeElModal('el-book-select-modal')">✕</button>
+                </div>
+                <div class="book-select-body">
+                    <div class="book-select-hint">请输入你要交流探讨的书籍名称：</div>
+                    <input type="text" id="book-name-input" class="book-select-field" placeholder="例如：《凡人修仙传》、《三体》..." onkeydown="if(event.key==='Enter') confirmEnterBookDiscuss()">
+                    <button class="book-select-submit-btn" onclick="confirmEnterBookDiscuss()">进入交流区</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 弹窗：书籍交流世界 (QQ空间风格) -->
+        <div class="el-modal-overlay" id="el-discuss-modal">
+            <div class="el-modal-box qzone-box">
+                <div class="el-modal-header">
+                    <h2 id="discuss-book-title">📖 书籍交流空间</h2>
+                    <button class="el-modal-close" onclick="closeElModal('el-discuss-modal')">✕</button>
+                </div>
+                <div class="publish-qzone-area">
+                    <input type="text" id="qzone-post-title" placeholder="帖子标题...">
+                    <textarea id="qzone-post-content" placeholder="畅所欲言，发表对本书的独到见解..."></textarea>
+                    <div class="publish-img-preview" id="qzone-img-preview"></div>
+                    <div class="publish-moment-bar">
+                        <label class="img-upload-btn">
+                            📷 上传图片
+                            <input type="file" id="qzone-img-file" accept="image/*" onchange="handleImageUpload(this, 'qzone-img-preview')">
+                        </label>
+                        <button onclick="publishQzonePost()">发表帖子</button>
+                    </div>
+                </div>
+                <div class="qzone-posts-list" id="discuss-posts-container"></div>
+            </div>
+        </div>
+
+        <!-- 弹窗：书籍记录世界 (情绪备忘录) -->
+        <div class="el-modal-overlay" id="el-record-modal">
+            <div class="el-modal-box memo-box">
+                <div class="el-modal-header">
+                    <h2>📝 书籍记录世界 (私密备忘录)</h2>
+                    <button class="el-modal-close" onclick="closeElModal('el-record-modal')">✕</button>
+                </div>
+                <div class="publish-memo-area">
+                    <textarea id="memo-input-text" placeholder="只有你能看到的私密随笔..."></textarea>
+                    <div class="emotion-selector-row">
+                        <span class="emotion-label">选择当前情绪：</span>
+                        <button class="emotion-btn selected" onclick="selectEmotion('😊 愉悦', this)">😊 愉悦</button>
+                        <button class="emotion-btn" onclick="selectEmotion('💡 顿悟', this)">💡 顿悟</button>
+                        <button class="emotion-btn" onclick="selectEmotion('🤔 思考', this)">🤔 思考</button>
+                        <button class="emotion-btn" onclick="selectEmotion('😢 感伤', this)">😢 感伤</button>
+                        <button class="emotion-btn" onclick="selectEmotion('🔥 震撼', this)">🔥 震撼</button>
+                    </div>
+                    <div class="publish-moment-bar" style="margin-top:12px;">
+                        <button onclick="saveMemoNote()">保存随笔</button>
+                    </div>
+                </div>
+                <div class="memo-notes-list" id="memo-notes-container"></div>
+            </div>
+        </div>
+        
+        <!-- 弹窗：线段书籍语录/评论查看 -->
+        <div class="el-modal-overlay" id="el-quote-modal">
+            <div class="el-modal-box quote-box" style="width: 440px;">
+                <div class="el-modal-header">
+                    <h2 id="quote-book-title">📖 书籍名言 / 评论</h2>
+                    <button class="el-modal-close" onclick="closeElModal('el-quote-modal')">✕</button>
+                </div>
+                <div class="quote-modal-body" style="padding:25px 20px;text-align:center;">
+                    <div id="quote-modal-text" style="font-size:15px;color:#333;line-height:1.8;font-family:'KaiTi',serif;margin-bottom:15px;"></div>
+                    <div id="quote-modal-author" style="font-size:12px;color:#888;text-align:right;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 星座界面 - 书籍选择 -->
+    <div id="book-screen" class="screen">
+        <canvas id="constellation-canvas"></canvas>
+        <div id="vignette-overlay"></div>
+        
+        <div id="constellation-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none;">
+            <!-- 顶部导航 -->
+            <header id="constellation-nav">
+                <button class="global-menu-btn" onclick="toggleGlobalMenu('book-menu')" style="position:static;transform:none;">☰</button>
+                <button class="back-btn-constellation" id="back-btn">← 返回星云</button>
+                <div class="constellation-title" id="constellation-title">科幻宇宙</div>
+                <div class="nav-search-wrap">
+                    <div class="search-box">
+                        <span class="search-icon">⌕</span>
+                        <input type="text" id="search-input" placeholder="搜索书籍或作者...">
+                    </div>
+                </div>
+            </header>
+            <div class="global-menu-drop" id="book-menu" style="top:55px;left:15px;">
+                <div class="global-menu-item">
+                    <span>🎵 背景音乐</span>
+                    <label class="bgm-toggle-switch">
+                        <input type="checkbox" class="bgm-toggle-cb" onchange="bgmToggle()" checked>
+                        <span class="bgm-toggle-slider"></span>
+                    </label>
+                </div>
+                <button class="global-menu-item gm-quit" onclick="logoutToLogin()">✕ 退出登录</button>
+            </div>
+
+            <!-- 右侧书籍信息面板 -->
+            <aside id="right-panel" class="hidden">
+                <div class="panel-close" id="panel-close">✕</div>
+                <div class="panel-book-cover" id="panel-cover"></div>
+                <div class="panel-book-title" id="panel-title">选择一颗星球</div>
+                <div class="panel-book-author" id="panel-author"></div>
+                <div class="panel-divider"></div>
+                <div class="panel-section-title">书籍简介</div>
+                <div class="panel-summary" id="panel-summary">选择一本书，了解它的故事。</div>
+                <div class="panel-divider"></div>
+                <div class="panel-section-title">世界观速览</div>
+                <div class="panel-world" id="panel-world">等待探索...</div>
+                <div class="panel-divider"></div>
+                <button class="cta-button" id="cta-btn" onclick="handleEnterBook()"><span class="cta-icon">&#x1F4D6;</span> 选择存档</button>
+            </aside>
+
+            <!-- 纸条便签 -->
+            <div id="paper-note">
+                <div class="tape"></div>
+                <div class="note-icon">☕</div>
+                点击星球，查看书籍名言。
+            </div>
+
+            <!-- 底部控制提示 -->
+            <footer id="constellation-footer">
+                <div class="controls-hint">
+                    <span>WASD</span> 飞行 · <span>拖拽</span> 旋转视角 · <span>滚轮</span> 缩放 · <span>点击星球</span> 查看书籍
+                </div>
+            </footer>
+
+            <!-- 恒星点击区域 - 透明覆盖层 -->
+            <div id="star-click-area" class="star-click-area" onclick="switchScreen('explore-life')"></div>
+        </div>
+    </div>
+
+    <!-- 书籍封面页 -->
+    <div id="book-landing-screen" class="screen">
+        <div class="landing-bg"></div>
+        <button class="landing-back" id="landing-back">← 返回</button>
+        <div class="landing-content">
+            <div class="landing-subtitle" id="landing-subtitle">— 沙 丘 1 —</div>
+            <h1 class="landing-title" id="landing-title">沙 丘</h1>
+            <div class="landing-author" id="landing-author">[美] 弗兰克·赫伯特 著</div>
+            <div class="landing-divider"></div>
+            <button class="landing-btn" id="landing-btn">开 始 游 戏</button>
+            <div class="landing-hint" id="landing-hint">你将穿越成为主角，亲历每一次命运的抉择</div>
+        </div>
+    </div>
+
+    <!-- 游戏界面 -->
+    <div id="game-screen" class="screen">
+        <canvas id="game-stars-canvas"></canvas>
+        <div id="game-vignette"></div>
+        <div id="game-bg-layer"></div>
+
+        <!-- 顶部人生模拟状态栏 -->
+        <div id="life-sim-bar" class="life-sim-bar">
+            <div class="sim-stat-item">
+                <span class="sim-stat-label" id="sim-label-age">⏳ 当前年岁</span>
+                <span class="sim-stat-val" id="sim-age-val">16 岁</span>
+            </div>
+            <div class="sim-stat-item">
+                <span class="sim-stat-label" id="sim-label-cult">✨ 当前境界</span>
+                <span class="sim-stat-val" id="sim-cultivation-val">炼气期一层</span>
+            </div>
+            <div class="sim-stat-item">
+                <span class="sim-stat-label" id="sim-label-maxage">🕊 大限寿元</span>
+                <span class="sim-stat-val" id="sim-max-age-val">120 岁</span>
+            </div>
+            <div class="sim-stat-item">
+                <span class="sim-stat-label" id="sim-label-fate">📍 当前地点</span>
+                <span class="sim-stat-val" id="sim-fate-val">七玄门·神手谷</span>
+            </div>
+        </div>
+
+        <!-- Intro overlay -->
+        <div id="game-intro">
+            <div class="intro-container">
+                <div class="intro-title" id="game-intro-title"></div>
+                <div class="intro-text" id="game-intro-text"></div>
+                <div class="intro-hint" id="game-intro-hint">按任意键继续</div>
+            </div>
+        </div>
+
+        <!-- 菜单按钮 -->
+        <button class="gm-btn" id="gm-btn">☰</button>
+        <div class="gm-drop" id="gm-drop">
+            <button class="gm-item" data-gm="character">👤 人物属性</button>
+            <button class="gm-item" data-gm="bag">🎒 储物袋</button>
+            <button class="gm-item" data-gm="pet">🐾 灵宠</button>
+            <button class="gm-item" data-gm="settings">⚙ 设置</button>
+            <button class="gm-item gm-quit" data-gm="quit">✕ 退出游戏</button>
+        </div>
+
+        <!-- 设置弹窗 -->
+        <div class="gm-set-overlay" id="gm-set-overlay">
+            <div class="gm-set-box">
+                <button class="gm-set-close" id="gm-set-close">✕</button>
+                <div class="gm-set-side">
+                    <div class="gm-set-nav-item active" data-panel="lang">语言</div>
+                    <div class="gm-set-nav-item" data-panel="font">字体</div>
+                    <div class="gm-set-nav-item" data-panel="fontsize">字号</div>
+                    <div class="gm-set-nav-item" data-panel="bgcolor">背景</div>
+                    <div class="gm-set-nav-item" data-panel="voice">朗读</div>
+                    <div class="gm-set-nav-item" data-panel="volume">音量</div>
+                    <div class="gm-set-nav-item" data-panel="sound">音效</div>
+                    <div class="gm-set-nav-item" data-panel="aistyle">AI风格</div>
+                    <div class="gm-set-nav-item" data-panel="help">帮助</div>
+                    <div class="gm-set-nav-item" data-panel="feedback">反馈</div>
+                    <div class="gm-set-nav-item" data-panel="about">关于</div>
+                </div>
+                <div class="gm-set-main">
+                    <!-- 语言 -->
+                    <div class="gm-panel active" id="gm-panel-lang">
+                        <h3>语言 / Language</h3>
+                        <div class="gm-lang-drop" id="gm-lang-drop">
+                            <button class="gm-lang-selected" id="gm-lang-selected">
+                                <span id="gm-lang-label">中文</span><span class="gm-lang-arrow">▾</span>
+                            </button>
+                            <div class="gm-lang-list" id="gm-lang-list">
+                                <div class="gm-lang-opt" data-gm-lang="zh">中文</div>
+                                <div class="gm-lang-opt" data-gm-lang="en">English</div>
+                                <div class="gm-lang-opt" data-gm-lang="ja">日本語</div>
+                            </div>
+                        </div>
+                        <button class="gm-submit-btn" id="gm-lang-confirm" style="margin-top:1rem;">确 定</button>
+                    </div>
+                    <!-- 字体选择 -->
+                    <div class="gm-panel" id="gm-panel-font">
+                        <h3>字体选择</h3>
+                        <div class="gm-lang-drop" id="gm-font-drop">
+                            <button class="gm-lang-selected" id="gm-font-selected">
+                                <span id="gm-font-label">默认</span><span class="gm-lang-arrow">▾</span>
+                            </button>
+                            <div class="gm-lang-list" id="gm-font-list">
+                                <div class="gm-font-item" data-font="default">默认</div>
+                                <div class="gm-font-item" data-font="song">宋体</div>
+                                <div class="gm-font-item" data-font="hei">黑体</div>
+                                <div class="gm-font-item" data-font="kai">楷体</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 字号 -->
+                    <div class="gm-panel" id="gm-panel-fontsize">
+                        <h3>字号大小</h3>
+                        <div class="gm-slider-row">
+                            <span class="gm-slider-label">A</span>
+                            <input type="range" class="gm-slider" id="gm-fontsize-slider" min="14" max="24" value="18" step="1">
+                            <span class="gm-slider-label gm-slider-big">A</span>
+                            <span class="gm-slider-val" id="gm-fontsize-val">18px</span>
+                        </div>
+                    </div>
+                    <!-- 背景颜色 -->
+                    <div class="gm-panel" id="gm-panel-bgcolor">
+                        <h3>背景颜色</h3>
+                        <div class="gm-bg-opts">
+                            <div class="gm-bg-opt active" data-bg="dark"><span class="gm-bg-swatch" style="background:#0a0e1a"></span>暗夜</div>
+                            <div class="gm-bg-opt" data-bg="cream"><span class="gm-bg-swatch" style="background:#f5f0e8"></span>米色</div>
+                            <div class="gm-bg-opt" data-bg="eye"><span class="gm-bg-swatch" style="background:#c8e6c0"></span>护眼</div>
+                        </div>
+                    </div>
+                    <!-- 朗读 -->
+                    <div class="gm-panel" id="gm-panel-voice">
+                        <h3>文字朗读</h3>
+                        <div class="gm-toggle-row">
+                            <span>自动朗读旁白</span>
+                            <button class="gm-toggle" id="gm-tts-toggle" data-on="false">关</button>
+                        </div>
+                    </div>
+                    <!-- 音量 -->
+                    <div class="gm-panel" id="gm-panel-volume">
+                        <h3>音量大小</h3>
+                        <div class="gm-slider-row">
+                            <span>🔈</span>
+                            <input type="range" class="gm-slider" id="gm-volume-slider" min="0" max="100" value="50" step="5">
+                            <span> 🔊</span>
+                            <span class="gm-slider-val" id="gm-volume-val">50%</span>
+                        </div>
+                    </div>
+                    <!-- 音效 -->
+                    <div class="gm-panel" id="gm-panel-sound">
+                        <h3>背景音效</h3>
+                        <div class="gm-toggle-row">
+                            <span>环境音效</span>
+                            <button class="gm-toggle" id="gm-sound-toggle" data-on="false">关</button>
+                        </div>
+                    </div>
+                    <!-- AI风格 -->
+                    <div class="gm-panel" id="gm-panel-aistyle">
+                        <h3>AI 对话风格</h3>
+                        <div class="gm-bg-opts">
+                            <div class="gm-bg-opt active" data-aistyle="formal">正式</div>
+                            <div class="gm-bg-opt" data-aistyle="casual">轻松</div>
+                            <div class="gm-bg-opt" data-aistyle="humor">幽默</div>
+                        </div>
+                    </div>
+                    <!-- 帮助 -->
+                    <div class="gm-panel gm-panel-text" id="gm-panel-help">
+                        <h3>帮助中心</h3>
+                        <div class="gm-help-text">
+                            <p><b>如何开始？</b><br>在星球界面选择一本书，点击「选择存档」弹出存档窗口，创建或选择存档后即可开始体验。</p>
+                            <p><b>如何操作？</b><br>点击屏幕任意位置可显示全文，再次点击进入下一段。遇到选项时，选择不同的道路体验不同的命运。</p>
+                            <p><b>存档在哪？</b><br>点击「选择存档」可管理多个存档，支持创建新存档和加载已有存档。</p>
+                        </div>
+                    </div>
+                    <!-- 反馈 -->
+                    <div class="gm-panel gm-panel-text" id="gm-panel-feedback">
+                        <h3>意见反馈</h3>
+                        <textarea class="gm-textarea" placeholder="请写下你的意见或建议..."></textarea>
+                        <button class="gm-submit-btn">提交反馈</button>
+                    </div>
+                    <!-- 关于 -->
+                    <div class="gm-panel gm-panel-text" id="gm-panel-about">
+                        <h3>关于我们</h3>
+                        <div class="gm-about-text">
+                            <p class="gm-about-title">文学星球 · 项目介绍</p>
+                            <p class="gm-about-subtitle">我们的初心</p>
+                            <p>在这个快节奏的时代，我们希望重新定义人与书的关系。文学星球不仅仅是一个阅读工具，更是一座连接读者与书籍深层世界的桥梁。我们致力于让每一位读者都能真正走进书本，与文字对话，与角色共情，与作者思想碰撞。</p>
+                            <p class="gm-about-subtitle">核心体验</p>
+                            <p>📖 <b>书籍深度理解</b><br>通过AI智能体与苏格拉底式对谈，层层追问书中深意，帮助读者穿透文字表面，触摸作者的精神世界。</p>
+                            <p>🎭 <b>书籍人生体验</b><br>选择你的天赋，踏入书中的世界，成为故事的主角。在关键节点做出选择，体验不同命运的走向。你不是旁观者，而是亲历者——书中的悲欢离合，都将由你亲自感受。</p>
+                            <p>🌍 <b>一书一世界</b><br>每一本书都是一个完整的宇宙。我们构建了沉浸式的世界地图，让你自由探索书中的每一个角落。</p>
+                            <p class="gm-about-subtitle">星空设想</p>
+                            <p>我们相信：一书一世界，一字一心境。文学星球正是基于这样的星空设想而诞生——我们希望用科技的力量，让每一个文字都活起来，让每一本书都成为可触碰、可体验、可对话的生命体。</p>
+                            <p class="gm-about-subtitle">我们的愿景</p>
+                            <p>让更多人爱上读书，让阅读成为一种生活方式。文学星球——让每一本书，都成为你的人生旅程。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-content" id="game-main-content">
+            <div id="game-chapter-display"></div>
+        </div>
+
+        <!-- 系统面板 -->
+        <!-- 赛博朋克风格大矩形窗口系统面板 -->
+        <div id="cyber-toast-container"></div>
+        <div id="system-panel-tab" onclick="window.toggleSystemPanel && window.toggleSystemPanel(true)">
+            <span class="tab-glow"></span>
+            <span class="tab-text" id="sys-tab-text">SYS</span>
+        </div>
+        <div id="system-panel-backdrop"></div>
+        <div id="system-panel" class="cyber-panel">
+            <!-- 边框流光层与扫描线 -->
+            <div class="cyber-border-stream"></div>
+            <div class="sys-scanlines"></div>
+            <span class="sys-corner-tr"></span>
+            <span class="sys-corner-bl"></span>
+            
+            <!-- 左侧纯导航菜单侧边栏 (从最顶部到最底部全部占据) -->
+            <nav class="cyber-sidebar-left">
+                <div class="cyber-logo-area">
+                    <span class="cyber-logo-icon">🎛️</span>
+                    <div class="cyber-logo-text">修仙系统</div>
+                </div>
+                <div class="cyber-menu-title">系统功能</div>
+                <div class="cyber-sidebar-nav">
+                    <button class="sys-nav-tab cyber-btn-ripple active" data-tab="status">
+                        <span class="tab-icon">📊</span>
+                        <span class="tab-label">角色状态</span>
+                        <span class="tab-indicator"></span>
+                    </button>
+                    <button class="sys-nav-tab cyber-btn-ripple" data-tab="quest">
+                        <span class="tab-icon">📜</span>
+                        <span class="tab-label">主线任务</span>
+                        <span class="tab-indicator"></span>
+                    </button>
+                    <button class="sys-nav-tab cyber-btn-ripple" data-tab="achievement">
+                        <span class="tab-icon">🏆</span>
+                        <span class="tab-label">成就图鉴</span>
+                        <span class="tab-indicator"></span>
+                    </button>
+                    <button class="sys-nav-tab cyber-btn-ripple" data-tab="space">
+                        <span class="tab-icon">🎒</span>
+                        <span class="tab-label">随身空间</span>
+                        <span class="tab-indicator"></span>
+                    </button>
+                    <button class="sys-nav-tab cyber-btn-ripple" data-tab="shop">
+                        <span class="tab-icon">🛒</span>
+                        <span class="tab-label">积分商城</span>
+                        <span class="tab-indicator"></span>
+                    </button>
+                    <button class="sys-nav-tab cyber-btn-ripple" data-tab="gacha">
+                        <span class="tab-icon">🎲</span>
+                        <span class="tab-label">气运转盘</span>
+                        <span class="tab-indicator"></span>
+                    </button>
+                    <button class="sys-nav-tab cyber-btn-ripple" data-tab="chat">
+                        <span class="tab-icon">💬</span>
+                        <span class="tab-label">AI终端</span>
+                        <span class="tab-indicator"></span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- 右侧主体内容展区 -->
+            <div class="cyber-right-container">
+                <!-- 顶部标题栏 -->
+                <div id="system-panel-header">
+                    <div class="sys-title-group">
+                        <span class="sys-bracket">[</span>
+                        <span id="sys-name-header">万界修仙系统 // 凡人修仙终端</span>
+                        <span class="sys-bracket">]</span>
+                    </div>
+                    <div class="sys-header-right">
+                        <div class="sys-status">
+                            <span class="sys-status-dot"></span>
+                            <span class="sys-status-text">系统在线</span>
+                        </div>
+                        <button id="system-panel-close" class="cyber-btn-ripple">✕</button>
+                    </div>
+                </div>
+
+                <!-- 顶部宿主全息核心简报卡片 (含积分滚动+属性快速展现) -->
+                <section class="sys-host-summary-card">
+                    <div class="sys-host-row-top">
+                        <div class="sys-host-name-box">
+                            <span class="sys-host-label">宿主名称:</span>
+                            <span class="sys-host-val" id="sys-host-name">韩立</span>
+                        </div>
+                        <div class="sys-host-points-box" style="position: relative;">
+                            <span class="sys-points-title">系统积分</span>
+                            <span class="sys-points-val" id="sys-points-val">0</span>
+                            <span class="sys-points-unit">PT</span>
+                            <span class="sys-points-info-trigger" onclick="togglePointsExplanation(event)" style="cursor: pointer; margin-left: 6px; color: var(--cyber-main); font-weight: bold; font-family: monospace; font-size: 14px; text-shadow: 0 0 5px var(--cyber-main);">[?]</span>
+                            
+                            <!-- 积分规则浮窗 -->
+                            <div id="sys-points-explanation" class="sys-points-explanation-bubble hidden" style="position: absolute; right: 0; top: 38px; width: 280px; background: rgba(5,5,15,0.95); border: 1.5px solid var(--cyber-main); border-radius: 6px; padding: 12px; font-size: 12px; color: #e0f2fe; line-height: 1.6; z-index: 1000; box-shadow: 0 0 15px rgba(0,255,255,0.4); pointer-events: auto;">
+                                <div style="color: var(--cyber-main); font-weight: bold; border-bottom: 1px dashed rgba(0,255,255,0.3); padding-bottom: 4px; margin-bottom: 6px;">📋 系统天道积分规则说明</div>
+                                <div style="margin-bottom: 4px;">1. **逆天改命**：触发并选择改变原著韩立命运的选项（即【逆天改命】事件分支），天道会奖励 **50 - 150 PT** 积分。</div>
+                                <div style="margin-bottom: 4px;">2. **击败强敌**：在遭遇战（如墨居仁夺舍之战等剧情PVP/PVE）中彻底击败对手，天道将奖励大量积分。</div>
+                                <div style="margin-bottom: 4px;">3. **主线生存契机**：在系统任务页面中，盘点线索并成功度过主线生死劫，可手动领取主线大奖 **200 PT**。</div>
+                                <div>4. **小绿瓶催熟**：在主界面储物袋中使用神秘小瓶催化灵药，每次奖励 **50 PT** 积分（每日限一次）。</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sys-host-gauge-group">
+                        <div class="sys-gauge-row">
+                            <span class="sys-gauge-lbl">境界</span>
+                            <div class="sys-gauge-bar"><div class="sys-gauge-fill fill-cultivation" id="sys-gauge-cultivation" style="width:35%;"></div></div>
+                            <span class="sys-gauge-num" id="sys-cultivation-txt">炼气期三层</span>
+                        </div>
+                        <div class="sys-gauge-row">
+                            <span class="sys-gauge-lbl">灵力</span>
+                            <div class="sys-gauge-bar"><div class="sys-gauge-fill fill-mana" id="sys-gauge-mana" style="width:50%;"></div></div>
+                            <span class="sys-gauge-num" id="sys-mana-txt">25/50</span>
+                        </div>
+                        <div class="sys-gauge-row">
+                            <span class="sys-gauge-lbl">气血</span>
+                            <div class="sys-gauge-bar"><div class="sys-gauge-fill fill-hp" id="sys-gauge-hp" style="width:100%;"></div></div>
+                            <span class="sys-gauge-num" id="sys-hp-txt">50/50</span>
+                        </div>
+                    </div>
+                </section>
+
+                <main class="cyber-main-content">
+
+                    <!-- 内容区域 (各Tab标签页) -->
+                    <div class="cyber-tab-pages-wrapper">
+                        <!-- 标签页 1：状态与属性展示 -->
+                        <div class="sys-tab-page active" id="sys-page-status">
+                            <div class="cyber-grid-2col">
+                                <!-- 左栏：气海与属性监控 -->
+                                <div class="sys-card-box">
+                                    <div class="sys-sec-title"><span>✦</span> 宿主灵识与气海监控</div>
+                                    <div class="sys-stat-item">
+                                        <span class="sys-stat-lbl">生命上限 (HP)</span>
+                                        <span class="sys-stat-val" id="edit-hp-val" style="color: #00ff88; font-weight: bold;">50</span>
+                                    </div>
+                                    <div class="sys-stat-item">
+                                        <span class="sys-stat-lbl">灵力上限 (MP)</span>
+                                        <span class="sys-stat-val" id="edit-mp-val" style="color: #00ffff; font-weight: bold;">50</span>
+                                    </div>
+                                    <div class="sys-stat-item">
+                                        <span class="sys-stat-lbl">当前年龄 / 寿元</span>
+                                        <span class="sys-stat-val" id="sys-age-val">16 岁 / 120 岁</span>
+                                    </div>
+                                    <div class="sys-stat-item">
+                                        <span class="sys-stat-lbl">天道逆天指数</span>
+                                        <span class="sys-stat-val highlight-magenta" id="sys-fate-val">+15 (因果扰动)</span>
+                                    </div>
+                                     <div class="sys-threat-scanner-row">
+                                        <div class="sys-threat-badge" id="sys-threat-badge">
+                                            <span class="threat-icon">⚠️</span> 危机预警: <span id="sys-threat-lvl">中度风险</span>
+                                        </div>
+                                        <button class="sys-scan-btn cyber-btn-ripple" onclick="runSpiritSenseScan()">📡 灵识扫描</button>
+                                    </div>
+                                    <div id="sys-scan-result-box" class="sys-scan-result-box hidden">
+                                        <div class="scan-result-title">📡 灵识扫描报告 (持久保留)</div>
+                                        <div class="scan-result-body" id="sys-scan-result-content"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 右栏：灵根全息感应 -->
+                                <div class="sys-card-box sys-root-box">
+                                    <div class="sys-sec-title"><span>✦</span> 四行伪灵根解析</div>
+                                    <div class="sys-root-bar-row">
+                                        <span class="root-name color-wood">木灵根</span>
+                                        <div class="root-bar"><div class="root-fill fill-wood" id="sys-root-wood" style="width:30%;"></div></div>
+                                        <span class="root-num" id="sys-root-wood-num">30%</span>
+                                    </div>
+                                    <div class="sys-root-bar-row">
+                                        <span class="root-name color-water">水灵根</span>
+                                        <div class="root-bar"><div class="root-fill fill-water" id="sys-root-water" style="width:25%;"></div></div>
+                                        <span class="root-num" id="sys-root-water-num">25%</span>
+                                    </div>
+                                    <div class="sys-root-bar-row">
+                                        <span class="root-name color-fire">火灵根</span>
+                                        <div class="root-bar"><div class="root-fill fill-fire" id="sys-root-fire" style="width:20%;"></div></div>
+                                        <span class="root-num" id="sys-root-fire-num">20%</span>
+                                    </div>
+                                    <div class="sys-root-bar-row">
+                                        <span class="root-name color-earth">土灵根</span>
+                                        <div class="root-bar"><div class="root-fill fill-earth" id="sys-root-earth" style="width:25%;"></div></div>
+                                        <span class="root-num" id="sys-root-earth-num">25%</span>
+                                    </div>
+                                    <div class="sys-root-bar-row muted-root">
+                                        <span class="root-name color-metal-muted">金灵根</span>
+                                        <div class="root-bar"><div class="root-fill fill-metal-none" style="width:0%;"></div></div>
+                                        <span class="root-num">缺金</span>
+                                    </div>
+                                    <div class="sys-root-type-tag" id="sys-root-type-tag">体质评价：四行伪灵根 (木水火土缺金，修仙资质极差，突破极难)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 标签页 2：系统任务 -->
+                        <div class="sys-tab-page" id="sys-page-quest">
+                            <div class="sys-sec-title"><span>✦</span> 当前主线生存契机</div>
+                            <div class="sys-quest-main-card">
+                                <div class="quest-title-row" style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div style="display:flex; gap:10px; align-items:center;">
+                                        <span class="quest-tag">当前主线</span>
+                                        <span class="quest-title" id="sys-main-quest-title">神手谷避劫</span>
+                                    </div>
+                                    <span id="sys-quest-status-badge" style="font-size:12px; color:#ffe066; border:1px solid #ffe066; padding:2px 8px; border-radius:4px; font-weight:bold;">进行中</span>
+                                </div>
+                                <div class="quest-desc" id="sys-main-quest-desc" style="margin-top:10px;">在墨居仁摊牌夺舍前，设法提升实力或搜集克制邪功的手段。</div>
+                                <div class="quest-reward-row" style="margin-top:10px;">
+                                    <span>奖励：系统积分 +200 / 天道逆天值 +10</span>
+                                </div>
+                                
+                                <!-- 主线任务的页面交互按钮 -->
+                                <div style="margin-top:15px; border-top:1px dashed rgba(0, 255, 255, 0.2); padding-top:12px; display:flex; gap:10px;">
+                                    <button class="sys-scan-btn cyber-btn-ripple" style="flex:1; padding:8px 0;" onclick="checkMainQuestStatus()">🔍 盘点任务线索</button>
+                                    <button class="sys-scan-btn cyber-btn-ripple" style="flex:1; padding:8px 0; background:linear-gradient(135deg, rgba(255,0,255,0.2), rgba(0,255,255,0.2)); border-color:#ff00ff;" onclick="claimQuestRewards()">🎁 领取完成奖励</button>
+                                </div>
+                                <div id="sys-quest-interactive-feedback" style="margin-top:10px; font-size:12px; color:#00ff88; line-height:1.5; min-height:18px;">
+                                    <!-- 交互反馈内容 -->
+                                </div>
+                            </div>
+
+                            <div class="sys-sec-title" style="margin-top:14px;"><span>✦</span> 逆天改命里程碑 (待完成探索契机)</div>
+                            <div class="sys-milestone-list" id="sys-milestone-list">
+                                <!-- 动态只渲染待完成项 -->
+                            </div>
+                        </div>
+
+                        <!-- 标签页 2.5：成就图鉴 -->
+                        <div class="sys-tab-page" id="sys-page-achievement">
+                            <div class="sys-sec-title"><span>✦</span> 凡人逆天道 · 成就全息图鉴</div>
+                            <div class="sys-achievement-summary">
+                                <span>已点亮成就：<strong id="achieve-count-num" style="color:var(--cyber-main); font-size:16px;">0</strong> / <span id="achieve-total-num">0</span></span>
+                                <span>总获得积分：<strong id="achieve-pts-num" style="color:#ffe066; font-size:16px;">0</strong> PT</span>
+                            </div>
+                            <div class="sys-achievement-grid" id="sys-achievement-grid">
+                                <!-- 动态注入所有成就卡片 -->
+                            </div>
+                        </div>
+
+                        <!-- 标签页 3：随身系统空间 -->
+                        <div class="sys-tab-page" id="sys-page-space">
+                            <div class="sys-sec-title"><span>✦</span> 随身法宝鉴定中心</div>
+                            
+                            <!-- 触发法宝选择的按钮 -->
+                            <div class="sys-appraisal-select-container">
+                                <button class="sys-scan-btn cyber-btn-ripple" style="width: 100%; padding: 12px; font-size: 14px;" onclick="openSystemItemSelector()">
+                                    🔮 从储物袋中选择法宝进行天道鉴定
+                                </button>
+                            </div>
+
+                            <!-- 法宝选择浮层/列表 (默认隐藏) -->
+                            <div id="sys-item-selector-modal" class="sys-selector-overlay hidden">
+                                <div class="sys-selector-box">
+                                    <div class="sys-selector-header">
+                                        <h3>选择待鉴定的法宝</h3>
+                                        <button onclick="closeSystemItemSelector()" style="background:none;border:none;color:#ff00ff;cursor:pointer;font-size:16px;">✕</button>
+                                    </div>
+                                    <div class="sys-selector-list" id="sys-selector-list">
+                                        <!-- 动态加载待选法宝 -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sys-item-appraisal-box" id="sys-item-appraisal-box" style="flex: 1; display: flex; flex-direction: column; min-height: 220px;">
+                                <div class="appraisal-title" style="font-size: 15px; border-bottom: 1px dashed rgba(255, 0, 255, 0.3); padding-bottom: 6px;">🔍 系统天道鉴定报告</div>
+                                <div class="appraisal-content" id="sys-appraisal-content" style="flex: 1; font-size: 16px; line-height: 1.8; color: #ffffff; padding: 10px 0; overflow-y: auto;">
+                                    请点击上方按钮，从储物袋中选择一件宝物或道具进行全息天道鉴定...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 标签页 4：系统积分商店 -->
+                        <div class="sys-tab-page" id="sys-page-shop">
+                            <div class="sys-sec-title"><span>✦</span> 系统天道积分商城</div>
+                            <div class="sys-shop-grid">
+                                <div class="shop-card">
+                                    <div class="shop-item-name">💊 洗髓丹</div>
+                                    <div class="shop-item-desc">改善伪灵根资质，略微提升吸收灵气的速度。</div>
+                                    <div class="shop-item-buy-row">
+                                        <span class="shop-price">100 PT</span>
+                                        <button class="cyber-btn-ripple" onclick="buyShopItem('洗髓丹', 100)">兑换</button>
+                                    </div>
+                                </div>
+                                <div class="shop-card">
+                                    <div class="shop-item-name">📜 隐气符 ×3</div>
+                                    <div class="shop-item-desc">隐匿自身修为与气息，防止高阶修士窥探。</div>
+                                    <div class="shop-item-buy-row">
+                                        <span class="shop-price">80 PT</span>
+                                        <button class="cyber-btn-ripple" onclick="buyShopItem('隐气符', 80)">兑换</button>
+                                    </div>
+                                </div>
+                                <div class="shop-card">
+                                    <div class="shop-item-name">🍶 聚灵草种子</div>
+                                    <div class="shop-item-desc">极适宜用掌天瓶绿液催熟的基灵药材。</div>
+                                    <div class="shop-item-buy-row">
+                                        <span class="shop-price">50 PT</span>
+                                        <button class="cyber-btn-ripple" onclick="buyShopItem('聚灵草种子', 50)">兑换</button>
+                                    </div>
+                                </div>
+                                <div class="shop-card">
+                                    <div class="shop-item-name">⚔ 眨眼剑法完整心得</div>
+                                    <div class="shop-item-desc">出剑如电，在近身快速搏杀中大放异彩。</div>
+                                    <div class="shop-item-buy-row">
+                                        <span class="shop-price">150 PT</span>
+                                        <button class="cyber-btn-ripple" onclick="buyShopItem('眨眼剑法完整心得', 150)">兑换</button>
+                                    </div>
+                                </div>
+                                <div class="shop-card shop-card-map">
+                                    <div class="shop-item-name">🗺 天南大陆舆图</div>
+                                    <div class="shop-item-desc">标注越国、镜州、七玄门、黄枫谷及周边修仙国度的系统绘制舆图。</div>
+                                    <div class="shop-item-buy-row">
+                                        <span class="shop-price">120 PT</span>
+                                        <button class="cyber-btn-ripple" onclick="buyShopItem('天南大陆舆图', 120)">兑换</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 标签页 5：天道气运抽奖轮盘 -->
+                        <div class="sys-tab-page" id="sys-page-gacha">
+                            <div class="sys-sec-title"><span>✦</span> 逆天改命 · 赛博气运转盘</div>
+                            <div class="sys-gacha-stage">
+                                <div class="sys-gacha-wheel" id="sys-gacha-wheel">
+                                    <div class="gacha-core">🎰</div>
+                                </div>
+                                <div class="sys-gacha-result" id="sys-gacha-result">消耗 50 积分抽取一次天地奇缘！</div>
+                                <div class="sys-gacha-btn-group">
+                                    <button class="sys-gacha-btn cyber-btn-ripple" onclick="spinGachaWheel(1)">抽一次 (50 PT)</button>
+                                    <button class="sys-gacha-btn golden cyber-btn-ripple" onclick="spinGachaWheel(5)">十连抽 (450 PT)</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 标签页 6：万界书灵 AI 终端 -->
+                        <div class="sys-tab-page" id="sys-page-chat">
+                            <div id="system-messages"></div>
+                        </div>
+                    </div>
+
+                    <!-- 底部常驻命令行区域 (仅对话页展示) -->
+                    <div id="system-input-area">
+                        <span class="sys-prompt">></span>
+                        <input type="text" id="system-input" placeholder="向系统输入指令或提问..." />
+                        <button id="system-send-btn" class="cyber-btn-ripple">发送指令</button>
+                    </div>
+                </main>
+            </div>
+            
+            <div id="system-panel-shortcut">[H] 隐藏/呼叫赛博系统面板</div>
+        </div>
+
+        <!-- 地图查看弹窗 -->
+        <div id="map-overlay">
+            <div id="map-box">
+                <div id="map-header">
+                    <h2 id="map-title"></h2>
+                    <button id="map-close">✕</button>
+                </div>
+                <div id="map-desc"></div>
+                <div id="map-image"></div>
+            </div>
+        </div>
+
+        <!-- 储物袋弹窗 -->
+        <div id="bag-overlay" class="bag-overlay hidden">
+            <div class="bag-modal">
+                <div class="bag-header">
+                    <h2>🎒 储物袋</h2>
+                    <button class="bag-close-btn" id="bag-close-btn">✕</button>
+                </div>
+                <div class="bag-body">
+                    <div class="bag-sidebar" id="bag-sidebar">
+                        <button class="bag-cat active" data-cat="weapon">⚔️<span>法宝</span></button>
+                        <button class="bag-cat" data-cat="talisman">📜<span>符宝</span></button>
+                        <button class="bag-cat" data-cat="pill">💊<span>丹药</span></button>
+                        <button class="bag-cat" data-cat="scroll">📋<span>卷轴</span></button>
+                        <button class="bag-cat" data-cat="other">📦<span>其他</span></button>
+                    </div>
+                    <div class="bag-stage" id="bag-content">
+                        <div class="bag-empty">这里空无一物</div>
+                    </div>
+                    <div class="bag-detail" id="bag-detail">
+                        <div class="bag-detail-empty">选择一个道具查看详情</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 灵宠弹窗 -->
+        <div id="pet-overlay" class="pet-overlay hidden">
+            <div class="pet-modal">
+                <div class="pet-header">
+                    <h2>🐾 灵宠</h2>
+                    <button class="pet-close-btn" id="pet-close-btn">✕</button>
+                </div>
+                <div class="pet-body">
+                    <div class="pet-sidebar" id="pet-sidebar">
+                        <div class="pet-empty-hint">暂无灵宠</div>
+                    </div>
+                    <div class="pet-main" id="pet-main">
+                        <div class="pet-display" id="pet-display">
+                            <div class="pet-empty-display">选择一只灵宠查看详情</div>
+                        </div>
+                        <div class="pet-feed-area" id="pet-feed-area"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 战斗界面 -->
+        <div id="combat-overlay" class="combat-overlay hidden">
+            <div class="combat-scene">
+                <div class="combat-turn-bar">
+                    <span class="combat-turn-label" id="combat-turn">第 1 回合</span>
+                </div>
+                <div class="combat-header">
+                    <div class="combat-enemy-info" id="combat-enemy-info">
+                        <div class="enemy-name" id="combat-enemy-name"></div>
+                        <div class="hp-bar enemy-hp"><div class="hp-fill" id="combat-enemy-hp"></div></div>
+                        <div class="hp-text" id="combat-enemy-hp-text"></div>
+                    </div>
+                </div>
+                <div class="combat-log" id="combat-log"></div>
+                <div class="combat-actions" id="combat-actions"></div>
+                <div class="combat-player-status" id="combat-player-status">
+                    <div class="combat-status-item">
+                        <span class="status-label">❤ 生命</span>
+                        <div class="hp-bar player-hp"><div class="hp-fill" id="combat-player-hp"></div></div>
+                        <span class="hp-text" id="combat-player-hp-text"></span>
+                    </div>
+                    <div class="combat-status-item">
+                        <span class="status-label">💧 灵力 <span class="mp-regen-hint">(+3/回合)</span></span>
+                        <div class="mp-bar"><div class="mp-fill" id="combat-player-mp"></div></div>
+                        <span class="hp-text" id="combat-player-mp-text"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卷轴查看弹窗 -->
+        <div id="scroll-overlay" class="scroll-overlay hidden">
+            <div class="scroll-modal">
+                <div class="scroll-header">
+                    <h2 id="scroll-title"></h2>
+                    <button class="scroll-close-btn" id="scroll-close-btn">✕</button>
+                </div>
+                <div class="scroll-content" id="scroll-content"></div>
+            </div>
+        </div>
+
+        </div>
+    </div>
+
+        <!-- 弹窗：人生终章重开结算面板 -->
+        <div id="life-summary-modal" class="el-modal-overlay">
+            <div class="el-modal-box life-summary-box">
+                <div class="el-modal-header">
+                    <h2>📜 穿越者生平终章与天道结算</h2>
+                </div>
+                <div class="life-summary-body">
+                    <div class="summary-badge-title" id="summary-title-badge">【逆天改命者】</div>
+                    <div class="summary-grid">
+                        <div class="summary-grid-item">
+                            <div class="s-label">终局年岁</div>
+                            <div class="s-val" id="summary-final-age">16 岁</div>
+                        </div>
+                        <div class="summary-grid-item">
+                            <div class="s-label">最终成就</div>
+                            <div class="s-val" id="summary-final-cult">炼气期一层</div>
+                        </div>
+                        <div class="summary-grid-item">
+                            <div class="s-label">因果偏移度</div>
+                            <div class="s-val" id="summary-final-fate">0% (遵守原著)</div>
+                        </div>
+                        <div class="summary-grid-item">
+                            <div class="s-label">天道评级</div>
+                            <div class="s-val" id="summary-final-rank">S 级传奇</div>
+                        </div>
+                    </div>
+                    <div class="summary-chronicle-box">
+                        <div class="chronicle-title">📖 宿主生平传记简史</div>
+                        <div class="chronicle-content" id="summary-chronicle-text">正在从天道长河中调取你的生平轨迹...</div>
+                    </div>
+                    <div class="summary-actions">
+                        <button class="btn-primary summary-btn" onclick="restartLifeEmulation()">↺ 重开下一世人生</button>
+                        <button class="btn-primary summary-btn btn-secondary" onclick="shareLifeToMoments()">📱 发布生平至万界朋友圈</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 弹窗：搜索玩家 / 添加好友 -->
+        <div class="el-modal-overlay" id="el-search-user-modal">
+            <div class="el-modal-box" style="max-width:450px;">
+                <div class="el-modal-header">
+                    <h2>🔍 查找道友 / 玩家</h2>
+                    <button class="el-modal-close" onclick="closeElModal('el-search-user-modal')">✕</button>
+                </div>
+                <div style="padding:1rem;">
+                    <div style="display:flex;gap:8px;margin-bottom:1rem;">
+                        <input type="text" id="user-search-input" class="book-select-field" placeholder="输入玩家ID或昵称..." style="flex:1;margin:0;" onkeydown="if(event.key==='Enter') searchUsersInServer()">
+                        <button class="book-select-submit-btn" style="width:auto;padding:0 1.2rem;margin:0;" onclick="searchUsersInServer()">查找</button>
+                    </div>
+                    <div id="user-search-results" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 弹窗：玩家个人主页 -->
+        <div class="el-modal-overlay" id="el-user-profile-modal">
+            <div class="el-modal-box" style="max-width:400px;text-align:center;">
+                <div class="el-modal-header">
+                    <h2>👤 玩家个人主页</h2>
+                    <button class="el-modal-close" onclick="closeElModal('el-user-profile-modal')">✕</button>
+                </div>
+                <div style="padding:1.5rem;display:flex;flex-direction:column;align-items:center;" id="user-profile-body">
+                    <!-- 动态注入个人主页信息 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏内达成成就时的非侵入式顶部通告横幅 -->
+        <div id="achievement-toast-banner" class="achievement-toast-banner hidden">
+            <div class="achieve-toast-icon">🏆</div>
+            <div class="achieve-toast-content">
+                <div class="achieve-toast-header">达成成就！</div>
+                <div class="achieve-toast-title" id="achieve-toast-title">【掌天神器 · 发现小绿瓶】</div>
+            </div>
+            <div class="achieve-toast-pts" id="achieve-toast-pts">+50 PT</div>
+        </div>
+
+        <!-- 弹窗：存档管理弹窗 (全局，不嵌套在任何 screen 内) -->
+    <div id="save-overlay" class="save-overlay hidden">
+        <div class="save-modal">
+            <div class="save-header">
+                <h2>📋 选择存档</h2>
+                <button class="save-close-btn" id="save-close-btn">✕</button>
+            </div>
+            <div class="save-body">
+                <div class="save-create-area">
+                    <button class="save-create-btn" id="save-create-btn">＋ 创建存档</button>
+                </div>
+                <div class="save-list" id="save-list">
+                    <!-- 存档列表动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 存档确认弹窗 -->
+    <div id="save-confirm-overlay" class="save-overlay hidden">
+        <div class="save-confirm-modal">
+            <div class="save-confirm-icon">📖</div>
+            <div class="save-confirm-text">是否确认进入该存档？</div>
+            <div class="save-confirm-btns">
+                <button class="save-confirm-btn save-confirm-yes" onclick="doEnterSave()">确认</button>
+                <button class="save-confirm-btn save-confirm-no" onclick="closeSaveConfirm()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 人物属性弹窗 (全局) -->
+    <div id="character-overlay" class="character-overlay hidden">
+        <div class="character-modal">
+            <div class="character-header">
+                <h2>👤 人物属性</h2>
+                <button class="character-close-btn" id="character-close-btn">✕</button>
+            </div>
+            <div class="character-body">
+                <div class="char-avatar-section">
+                    <div class="char-avatar-box">韩</div>
+                    <div class="char-name" id="char-name">韩立</div>
+                </div>
+                <div class="char-stats-section">
+                    <div class="char-stat-row">
+                        <span class="char-stat-label">年龄：</span>
+                        <span class="char-stat-val" id="char-age">16 岁</span>
+                    </div>
+                    <div class="char-stat-row">
+                        <span class="char-stat-label">灵根天赋：</span>
+                        <span class="char-stat-val text-spirit-root" id="char-spirit-root">伪灵根 (四行伪灵根·缺金)</span>
+                    </div>
+                    <div class="char-stat-row">
+                        <span class="char-stat-label">修仙境界：</span>
+                        <span class="char-stat-val" id="char-cultivation">炼气期三层</span>
+                    </div>
+                    <div class="char-stat-row">
+                        <span class="char-stat-label">生命值：</span>
+                        <div class="char-bar-container">
+                            <div class="char-bar-fill bg-hp" id="char-hp-fill" style="width: 100%"></div>
+                            <span class="char-bar-text" id="char-hp-text">50/50</span>
+                        </div>
+                    </div>
+                    <div class="char-stat-row">
+                        <span class="char-stat-label">法力值：</span>
+                        <div class="char-bar-container">
+                            <div class="char-bar-fill bg-mp" id="char-mp-fill" style="width: 50%"></div>
+                            <span class="char-bar-text" id="char-mp-text">25/50</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- 游戏内置自定义提示/输入弹窗 -->
+        <div id="game-dialog-overlay" class="game-dialog-overlay hidden">
+            <div class="game-dialog-box">
+                <div class="game-dialog-header">
+                    <span id="game-dialog-title">系统提示</span>
+                    <button class="game-dialog-close" onclick="closeGameDialog()">✕</button>
+                </div>
+                <div class="game-dialog-body" id="game-dialog-body">提示内容</div>
+                <div class="game-dialog-input-wrap hidden" id="game-dialog-input-wrap">
+                    <input type="text" id="game-dialog-input" class="game-dialog-input" />
+                </div>
+                <div class="game-dialog-buttons" id="game-dialog-buttons">
+                    <button class="game-dialog-btn btn-confirm" id="game-dialog-confirm-btn">确认</button>
+                    <button class="game-dialog-btn btn-cancel" id="game-dialog-cancel-btn" onclick="closeGameDialog()">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 死亡画面 (全局) -->
+    <div id="death-overlay" class="death-overlay hidden">
+        <div class="death-modal">
+            <div class="death-icon">💀</div>
+            <h2 class="death-title">你死了</h2>
+            <p class="death-reason" id="death-reason"></p>
+            <div class="death-btns">
+                <button class="death-btn death-retry" id="death-retry-btn">🔄 重新挑战</button>
+                <button class="death-btn death-quit" id="death-quit-btn">🌌 返回星辰</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/explore-life.js"></script>
+    <script src="js/bgm.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/nebula.js"></script>
+    <script src="js/constellation.js"></script>
+    <script src="js/ai-service.js"></script>
+    <script src="js/arc-engine.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/tts.js"></script>
+    <script src="js/system-panel.js"></script>
+    <script src="js/game-data-dune.js"></script>
+    <script src="js/game-data-fanren.js"></script>
+</body>
+</html>
